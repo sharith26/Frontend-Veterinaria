@@ -1,0 +1,102 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold text-info" href="#">🐾 VetControl</a>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link active fw-semibold" routerLink="/dashboard">🐶 Gestión de Mascotas</a></li>
+        <li class="nav-item"><a class="nav-link text-white-50 fw-semibold" href="#">📅 Citas Médicas</a></li>
+        <li class="nav-item"><a class="nav-link text-white-50 fw-semibold" href="#">👤 Propietarios</a></li>
+      </ul>
+      <div class="d-flex align-items-center">
+        <span class="badge bg-primary px-3 py-2 me-3 fs-6">Rol: {{ rolUsuario }}</span>
+        <button (click)="cerrarSesion()" class="btn btn-outline-danger btn-sm fw-bold px-3">Salir</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <div class="card p-4 shadow-sm border-0 bg-white mb-4" style="border-radius: 12px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-bold text-secondary m-0">📋 Listado de Pacientes</h2>
+        <p class="text-muted small m-0">Historial de mascotas registradas en la veterinaria</p>
+      </div>
+      <button (click)="abrirModalCrear()" class="btn btn-success fw-bold px-3 py-2 rounded-3 shadow-sm">
+        ➕ Registrar Nueva Mascota
+      </button>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-hover align-middle border-0">
+        <thead class="table-light text-secondary">
+          <tr>
+            <th class="ps-3">Paciente</th>
+            <th>Especie / Raza</th>
+            <th>Edad</th>
+            <th>Propietario</th>
+            <th>Estado</th>
+            <th class="text-center">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let mascota of listaMascotas; let i = index">
+            <td class="fw-bold text-primary ps-3">🐾 {{ mascota.nombre }}</td>
+            <td>
+              <span class="badge bg-light text-dark border px-2 py-1">{{ mascota.especie }}</span>
+              <small class="text-muted d-block mt-1">{{ mascota.raza }}</small>
+            </td>
+            <td>{{ mascota.edad }} años</td>
+            <td><div class="fw-semibold">{{ mascota.dueno }}</div></td>
+            <td>
+              <span class="badge" [ngClass]="mascota.activo ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
+                {{ mascota.activo ? 'En Consulta' : 'De Alta' }}
+              </span>
+            </td>
+            <td class="text-center">
+              <button (click)="abrirModalEditar(mascota, i)" class="btn btn-outline-primary btn-sm me-2 fw-semibold">✏️ Editar</button>
+              <button (click)="eliminarMascota(i)" class="btn btn-outline-danger btn-sm fw-semibold">🗑️ Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-success">💊 Inventario de Medicamentos</h2>
+        <button class="btn btn-success" (click)="cargarMedicamentos()">🔄 Actualizar Stock</button>
+      </div>
+      <table class="table table-hover">
+        <thead><tr><th>Nombre</th><th>Stock</th><th>Acción</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let m of listaMedicamentos">
+            <td>{{ m.nombre }}</td>
+            <td>{{ m.stock }}</td>
+            <td><button type="button" class="btn btn-sm btn-outline-info" (click)="verDetalle(m)">Ver</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" [ngClass]="{'show d-block': mostrarModal}" [style.background]="mostrarModal ? 'rgba(0,0,0,0.5)' : ''" tabindex="-1">
+  </div>
+
+<div class="modal fade" [ngClass]="{'show d-block': mostrarModalMedicamento}" [style.display]="mostrarModalMedicamento ? 'block' : 'none'" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalle Medicamento</h5>
+        <button type="button" class="btn-close" (click)="cerrarModalMedicamento()"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Medicamento:</strong> {{ medicamentoSeleccionado?.nombre }}</p>
+        <p><strong>Stock:</strong> {{ medicamentoSeleccionado?.stock }}</p>
+      </div>
+    </div>
+  </div>
+</div>

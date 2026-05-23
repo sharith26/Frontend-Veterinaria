@@ -1,0 +1,29 @@
+import { Component, OnInit } from '@angular/core';
+import { MascotaService } from '../../services/mascota.service';
+
+@Component({
+  selector: 'app-mascotas',
+  templateUrl: './mascotas.component.html'
+})
+export class MascotasComponent implements OnInit {
+
+  mascotas: any[] = [];
+
+  constructor(private mascotaService: MascotaService) {}
+
+  ngOnInit(): void {
+    this.obtenerMascotas();
+  }
+
+  obtenerMascotas() {
+    this.mascotaService.obtenerMascotas().subscribe({
+      next: (data) => {
+        console.log(data);
+        this.mascotas = data;
+      },
+      error: (error) => {
+        console.error(error);
+      }
+    });
+  }
+}

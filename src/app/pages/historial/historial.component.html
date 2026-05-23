@@ -1,0 +1,41 @@
+<div class="container mt-4">
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <h2 class="fw-bold text-success">💊 Inventario de Medicamentos</h2>
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th>Medicamento</th>
+            <th>Stock</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let m of listaMedicamentos">
+            <td>{{ m.nombre }}</td>
+            <td>{{ m.stock }} unidades</td>
+            <td>
+              <button type="button" class="btn btn-sm btn-outline-info" (click)="verDetalle(m)">
+                Ver Detalles
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal" [class.show]="mostrarModalMedicamento" [style.display]="mostrarModalMedicamento ? 'block' : 'none'" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalle de: {{ medicamentoSeleccionado?.nombre }}</h5>
+        <button type="button" class="btn-close" (click)="cerrarModalMedicamento()"></button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Stock actual:</strong> {{ medicamentoSeleccionado?.stock }}</p>
+      </div>
+    </div>
+  </div>
+</div>
