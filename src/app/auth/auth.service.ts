@@ -12,9 +12,19 @@ export class AuthService {
     private router: Router
   ) {}
 
-  async login(email: string, password: string) {
+  private async calcularSHA256(texto: string): Promise<string> {
+    const encoder = new TextEncoder();
+    const data = encoder.encode(texto);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    
+    return Array.from(new Uint8Array(hashBuffer))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('');
+  }
 
+  async login(email: string, password: string) {
     const supabase = this.supabaseService.supabase;
+    const emailLimpio = email.trim().toLowerCase();
 
     const { data, error } = await supabase
       .from('usuario')
@@ -22,33 +32,38 @@ export class AuthService {
         id_usuario,
         email,
         contrasena,
-        rol:id_rol (
+        rol (
           nombre_rol
         )
       `)
-      .eq('email', email)
+      .eq('email', emailLimpio)
       .single();
 
     if (error || !data) {
+      console.error('Error de Supabase o usuario no encontrado:', error);
       throw new Error('Usuario no encontrado');
     }
 
-    if (data.contrasena !== password) {
+    const passwordHasheada = await this.calcularSHA256(password);
+
+    if (data.contrasena !== passwordHasheada) {
+      console.error('La contraseña no coincide con el hash de la BD');
       throw new Error('Contraseña incorrecta');
     }
 
-    localStorage.setItem('token', 'sesion-activa');
-    const rolUsuario = Array.isArray(data.rol)
-    ? data.rol[0]?.nombre_rol
-    : (data.rol as any)?.nombre_rol;
+    const rolData: any = data.rol;
+    const rolUsuario = Array.isArray(rolData) ? rolData[0]?.nombre_rol : rolData?.nombre_rol;
+    const rolFinal = rolUsuario || 'Consultas';
 
-localStorage.setItem('rol', rolUsuario);
+    const payloadFake = { 
+      id: data.id_usuario, 
+      rol: rolFinal, 
+      exp: Date.now() + 28800000 
+    };
+
+    localStorage.setItem('token', btoa(JSON.stringify(payloadFake)));
+    localStorage.setItem('rol', rolFinal);
 
     return data;
-  }
-
-  logout() {
-    localStorage.clear();
-    this.router.navigate(['/login']);
   }
 }

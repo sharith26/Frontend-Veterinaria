@@ -36,7 +36,7 @@
             <th>Edad</th>
             <th>Propietario</th>
             <th>Estado</th>
-            <th class="text-center">Acciones</th>
+            <th class="text-center" style="min-width: 280px;">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -54,49 +54,75 @@
               </span>
             </td>
             <td class="text-center">
-              <button (click)="abrirModalEditar(mascota, i)" class="btn btn-outline-primary btn-sm me-2 fw-semibold">✏️ Editar</button>
-              <button (click)="eliminarMascota(i)" class="btn btn-outline-danger btn-sm fw-semibold">🗑️ Eliminar</button>
+              <div class="d-flex justify-content-center gap-2">
+                <button (click)="abrirModalEditar(mascota, i)" class="btn btn-outline-primary btn-sm fw-semibold">
+                  ✏️ Editar
+                </button>
+                <button (click)="eliminarMascota(i)" class="btn btn-outline-danger btn-sm fw-semibold">
+                  🗑️ Eliminar
+                </button>
+                <button (click)="verMedicamentosMascota(mascota)" class="btn btn-outline-info btn-sm fw-semibold">
+                  💊 Medicamentos
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
-
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-success">💊 Inventario de Medicamentos</h2>
-        <button class="btn btn-success" (click)="cargarMedicamentos()">🔄 Actualizar Stock</button>
-      </div>
-      <table class="table table-hover">
-        <thead><tr><th>Nombre</th><th>Stock</th><th>Acción</th></tr></thead>
-        <tbody>
-          <tr *ngFor="let m of listaMedicamentos">
-            <td>{{ m.nombre }}</td>
-            <td>{{ m.stock }}</td>
-            <td><button type="button" class="btn btn-sm btn-outline-info" (click)="verDetalle(m)">Ver</button></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
 </div>
+<!-- Modal medicamentos por mascota -->
+<div *ngIf="mostrarModalMedicamentos" 
+     class="modal d-block" 
+     style="background: rgba(0,0,0,0.5);" 
+     tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow" style="border-radius: 16px; border: none;">
 
-<div class="modal fade" [ngClass]="{'show d-block': mostrarModal}" [style.background]="mostrarModal ? 'rgba(0,0,0,0.5)' : ''" tabindex="-1">
-  </div>
+      <div class="modal-header bg-light" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+        <h5 class="modal-title fw-bold text-primary">
+          📋 Medicamentos de: {{ mascotaSeleccionada?.nombre }}
+        </h5>
+        <button type="button" class="btn-close" (click)="cerrarModalMedicamentos()"></button>
+      </div>
 
-<div class="modal fade" [ngClass]="{'show d-block': mostrarModalMedicamento}" [style.display]="mostrarModalMedicamento ? 'block' : 'none'" style="background: rgba(0,0,0,0.5);">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Detalle Medicamento</h5>
-        <button type="button" class="btn-close" (click)="cerrarModalMedicamento()"></button>
+      <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+        <div *ngIf="cargandoMedicamentos" class="text-center my-4">
+          <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+          <p class="text-muted small mt-2 mb-0">Buscando medicamentos...</p>
+        </div>
+
+        <ng-container *ngIf="!cargandoMedicamentos">
+          <div *ngIf="medicamentosMascota.length > 0" class="list-group list-group-flush">
+            <div *ngFor="let med of medicamentosMascota" class="list-group-item px-1 py-3 border-bottom">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <h6 class="mb-0 fw-bold text-dark">
+                  💊 {{ med.medicamento?.nombre || 'Sin nombre' }}
+                </h6>
+                <span class="badge bg-primary rounded-pill">{{ med.cantidad }} uds.</span>
+              </div>
+              <p class="mb-0 text-muted small">
+                <strong>Dosis:</strong> {{ med.dosis || 'No especificada' }}
+              </p>
+            </div>
+          </div>
+
+          <div *ngIf="medicamentosMascota.length === 0" class="text-center py-4">
+            <span style="font-size: 2.5rem;">🎉</span>
+            <p class="text-muted fw-semibold mt-3 mb-0">Esta mascota no tiene medicamentos recetados.</p>
+          </div>
+        </ng-container>
       </div>
-      <div class="modal-body">
-        <p><strong>Medicamento:</strong> {{ medicamentoSeleccionado?.nombre }}</p>
-        <p><strong>Stock:</strong> {{ medicamentoSeleccionado?.stock }}</p>
+
+      <div class="modal-footer border-0 bg-light" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+        <button type="button" class="btn btn-secondary fw-bold px-4" 
+                (click)="cerrarModalMedicamentos()" 
+                style="border-radius: 8px;">
+          Cerrar
+        </button>
       </div>
+
     </div>
   </div>
 </div>

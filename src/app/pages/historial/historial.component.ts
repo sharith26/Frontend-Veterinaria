@@ -14,9 +14,13 @@ export class HistorialComponent implements OnInit {
   listaMedicamentos: any[] = [];
   listaPrescripciones: any[] = [];
 
-  // Variables para el modal
-  medicamentoSeleccionado: any = null;
+  // Manejo de estado del modal dinámico
+  mascotaSeleccionada: any = null;
+  medicamentosDeMascota: any[] = [];
   mostrarModalMedicamento: boolean = false;
+  
+  loading: boolean = true;
+  errorMensaje: string = '';
 
   constructor(private supabaseService: SupabaseService) {}
 
@@ -25,56 +29,85 @@ export class HistorialComponent implements OnInit {
   }
 
   async cargarDatos() {
-    await Promise.all([
-      this.cargarHistorias(),
-      this.cargarMedicamentos(),
-      this.cargarPrescripciones()
-    ]);
+    this.loading = true;
+    this.errorMensaje = '';
+    
+    try {
+      await Promise.all([
+        this.cargarHistorias(),
+        this.cargarMedicamentos(),
+        this.cargarPrescripciones()
+      ]);
+    } catch (error) {
+      console.error("Error al sincronizar las tablas de Supabase:", error);
+      this.errorMensaje = "Ocurrió un error al obtener la información de la base de datos.";
+    } finally {
+      this.loading = false;
+    }
   }
 
-  // --- MÉTODOS DEL MODAL ---
-  verDetalle(medicamento: any) {
-    this.medicamentoSeleccionado = medicamento;
+  /**
+   * Filtra las prescripciones de la mascota en tiempo real de forma local
+   */
+  verMedicamentosPorMascota(historia: any) {
+    // Asignamos la mascota de la fila seleccionada
+    this.mascotaSeleccionada = historia.mascota;
+    
+    // Cruzamos la lista de prescripciones general buscando las que pertenezcan a esta mascota
+    this.medicamentosDeMascota = this.listaPrescripciones.filter((prescripcion: any) => {
+      return prescripcion.historia_clinica?.mascota?.nombre === historia.mascota?.nombre;
+    });
+
+    // Abrimos el modal flotante
     this.mostrarModalMedicamento = true;
   }
 
   cerrarModalMedicamento() {
     this.mostrarModalMedicamento = false;
+    this.mascotaSeleccionada = null;
+    this.medicamentosDeMascota = [];
   }
 
-  // --- CARGA DE DATOS ---
   async cargarMedicamentos() {
     const { data, error } = await this.supabaseService.supabase
       .from('medicamento')
       .select('*');
 
-    if (error) {
-      console.error("Error al cargar medicamentos:", error);
-    } else {
-      this.listaMedicamentos = data || [];
-    }
+    if (error) throw error;
+    this.listaMedicamentos = data || [];
   }
 
   async cargarHistorias() {
     const { data, error } = await this.supabaseService.supabase
       .from('historia_clinica')
       .select(`
+        id_historia,
         diagnostico,
+        tratamiento,
+        observaciones,
         fecha_apertura,
-        mascota:id_mascota (nombre),
-        veterinario:id_veterinario (nombres, apellidos)
+        mascota (nombre, especie, raza, edad, propietario),
+        veterinario (nombres, apellidos)
       `);
-    if (data) this.listaHistorias = data;
+      
+    if (error) throw error;
+    this.listaHistorias = data || [];
   }
 
   async cargarPrescripciones() {
     const { data, error } = await this.supabaseService.supabase
       .from('prescripcion')
       .select(`
-        dosis, frecuencia,
-        mascota:id_mascota (nombre),
-        medicamento:id_medicamento (nombre)
+        id_prescripcion,
+        dosis,
+        cantidad,
+        medicamento (nombre),
+        historia_clinica (
+          mascota (nombre)
+        )
       `);
-    if (data) this.listaPrescripciones = data;
+
+    if (error) throw error;
+    this.listaPrescripciones = data || [];
   }
 }

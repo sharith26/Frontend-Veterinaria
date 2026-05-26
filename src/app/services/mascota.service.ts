@@ -6,26 +6,30 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class MascotaService {
-  // URL de tu API de Node.js/Express
   private apiUrl = 'http://localhost:3000/api/mascota'; 
 
   constructor(private http: HttpClient) {}
 
-private obtenerHeaders() {
-  const token = localStorage.getItem('token');
-  
-  // Esto nos dirá en la consola qué está enviando realmente tu app
-  console.log("Token enviado en headers:", token); 
-  
-  return new HttpHeaders({
-    'Content-Type': 'application/json',
-    'Authorization': token ? `Bearer ${token}` : '' // Si no hay token, no enviamos 'Bearer null'
-  });
-}
+  private obtenerHeaders() {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    });
+  }
 
   obtenerMascotas(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl, { headers: this.obtenerHeaders() });
   }
+
+  /**
+   * Pega al endpoint específico de tu backend de Node.js/Express 
+   * encargado de resolver el JOIN de medicamentos para este ID de mascota.
+   */
+  obtenerMedicamentosPorMascota(idMascota: number): Observable<any[]> {
+  const headers = this.obtenerHeaders().set('Cache-Control', 'no-cache').set('Pragma', 'no-cache');
+  return this.http.get<any[]>(`${this.apiUrl}/${idMascota}/medicamentos`, { headers });
+}
 
   crearMascota(mascota: any): Observable<any> {
     return this.http.post<any>(this.apiUrl, mascota, { headers: this.obtenerHeaders() });

@@ -1,52 +1,54 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms'; // 👈 Añadido ReactiveFormsModule
+import { AuthService } from './auth.service';
 import { Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { AuthService } from './auth.service'; 
 
 @Component({
   selector: 'app-auth',
-  standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  standalone: true, // 👈 Si tu componente es Standalone, asegúrate de tener esto
+  imports: [ReactiveFormsModule], // 👈 IMPORTANTE: Esto quita el error de formGroup
   templateUrl: './auth.component.html',
   styleUrls: ['./auth.css']
 })
-export class AuthComponent {
-  loginForm: FormGroup;
-  errorMensaje: string = '';
+export class AuthComponent implements OnInit {
+  authForm!: FormGroup;
   loading: boolean = false;
+  errorMensaje: string = '';
 
   constructor(
-    private fb: FormBuilder, 
-    private router: Router,
-    private authService: AuthService 
-  ) {
-    this.loginForm = this.fb.group({
+    private fb: FormBuilder,
+    private authService: AuthService, 
+    private router: Router
+  ) {}
+
+  ngOnInit(): void {
+    this.authForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(4)]]
+      password: ['', [Validators.required]]
     });
   }
 
-async onSubmit() {
+  async onSubmit() {
+    if (this.authForm.invalid) {
+      this.errorMensaje = 'Por favor, introduce un correo y contraseña válidos.';
+      return;
+    }
 
-  if (this.loginForm.invalid) return;
+    this.loading = true;
+    this.errorMensaje = '';
+    this.authForm.disable(); 
 
-  this.loading = true;
-  this.errorMensaje = '';
+    const { email, password } = this.authForm.value;
 
-  const { email, password } = this.loginForm.value;
-
-  try {
-
-    await this.authService.login(email, password);
-
-    this.router.navigate(['/dashboard']);
-
-  } catch (error) {
-
-    this.errorMensaje = 'Usuario o contraseña incorrectos';
-    this.loading = false;
-
+    try {
+      await this.authService.login(email, password);
+      this.router.navigate(['/dashboard']); 
+    } catch (error: any) {
+      console.error('Error capturado en el componente:', error);
+      this.errorMensaje = 'Usuario o contraseña incorrectos';
+      this.authForm.enable();
+    } finally {
+      this.loading = false;
     }
   }
 }

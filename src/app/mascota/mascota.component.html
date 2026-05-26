@@ -1,29 +1,123 @@
-import { Component, OnInit } from '@angular/core';
-import { MascotaService } from '../../services/mascota.service';
+<div class="container mt-4">
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold text-primary m-0">📋 Listado de Pacientes</h2>
+      <p class="text-muted small mb-0">Historial de mascotas registradas en la veterinaria</p>
+    </div>
+    <button class="btn btn-success fw-bold d-flex align-items-center gap-1" style="border-radius: 8px;">
+      ➕ Registrar Nueva Mascota
+    </button>
+  </div>
 
-@Component({
-  selector: 'app-mascotas',
-  templateUrl: './mascotas.component.html'
-})
-export class MascotasComponent implements OnInit {
+  <div class="table-responsive shadow-sm rounded-3 bg-white mb-5">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Paciente</th>
+          <th>Especie / Raza</th>
+          <th>Edad</th>
+          <th>Propietario</th>
+          <th>Estado</th>
+          <th class="text-center" style="min-width: 300px;">Acciones</th> </tr>
+      </thead>
+      <tbody>
+        @for (mascota of mascotas; track mascota.id_mascota) {
+          <tr>
+            <td>
+              <span class="fw-bold text-primary">🐾 {{ mascota.nombre }}</span>
+            </td>
+            <td>
+              <div class="small fw-semibold text-dark">{{ mascota.especie }}</div>
+              <div class="text-muted" style="font-size: 0.75rem;">{{ mascota.raza }}</div>
+            </td>
+            <td>{{ mascota.edad }} años</td>
+            <td>{{ mascota.propietario }}</td>
+            <td>
+              <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+                En Consulta
+              </span>
+            </td>
+            
+            <td class="text-center">
+              <div class="d-flex justify-content-center align-items-center gap-2">
+                <button type="button" class="btn btn-outline-primary btn-sm fw-semibold d-flex align-items-center gap-1">
+                  ✏️ Editar
+                </button>
+                
+                <button type="button" class="btn btn-outline-danger btn-sm fw-semibold d-flex align-items-center gap-1">
+                  🗑️ Eliminar
+                </button>
 
-  mascotas: any[] = [];
+                <button 
+                  type="button" 
+                  class="btn btn-outline-info btn-sm fw-semibold d-flex align-items-center gap-1"
+                  (click)="verMedicamentos(mascota)">
+                  💊 Medicamentos
+                </button>
+              </div>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 
-  constructor(private mascotaService: MascotaService) {}
+  @if (mostrarModalMedicamentos) {
+    <div class="modal d-block bg-dark bg-opacity-50 animate__animated animate__fadeIn" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content shadow" style="border-radius: 16px; border: none;">
+          
+          <div class="modal-header bg-light" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+            <h5 class="modal-title fw-bold text-primary">
+              📋 Medicamentos de: {{ mascotaSeleccionada?.nombre }}
+            </h5>
+            <button type="button" class="btn-close" (click)="cerrarModal()"></button>
+          </div>
 
-  ngOnInit(): void {
-    this.obtenerMascotas();
+          <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+            @if (cargandoMedicamentos) {
+              <div class="text-center my-4">
+                <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
+                <p class="text-muted small mt-2 mb-0">Buscando en la base de datos...</p>
+              </div>
+            } @else {
+              @if (medicamentosMascota.length > 0) {
+                <div class="list-group list-group-flush">
+                  @for (med of medicamentosMascota; track med.id_prescripcion) {
+                    <div class="list-group-item px-1 py-3 border-bottom">
+                      <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                        <h6 class="mb-0 fw-bold text-dark">
+                          💊 {{ med.medicamento?.nombre || med.nombre_medicamento }}
+                        </h6>
+                        <span class="badge bg-primary rounded-pill">
+                          {{ med.cantidad }} uds.
+                        </span>
+                      </div>
+                      <p class="mb-0 text-muted small">
+                        <strong>Dosis asignada:</strong> {{ med.dosis || 'No especificada' }}
+                      </p>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="text-center py-4 my-2">
+                  <span style="font-size: 2.5rem;">🎉</span>
+                  <p class="text-muted fw-semibold mt-3 mb-0">Esta mascota no registra medicamentos recetados en su tratamiento actual.</p>
+                </div>
+              }
+            }
+          </div>
+
+          <div class="modal-footer border-0 bg-light" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+            <button type="button" class="btn btn-secondary fw-bold px-4" (click)="cerrarModal()" style="border-radius: 8px;">
+              Cerrar Ventana
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
   }
 
-  obtenerMascotas() {
-    this.mascotaService.obtenerMascotas().subscribe({
-      next: (data) => {
-        console.log(data);
-        this.mascotas = data;
-      },
-      error: (error) => {
-        console.error(error);
-      }
-    });
-  }
-}
+</div>

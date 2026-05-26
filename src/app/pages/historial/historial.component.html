@@ -1,41 +1,116 @@
 <div class="container mt-4">
-  <div class="card shadow-sm border-0 mb-4">
-    <div class="card-body">
-      <h2 class="fw-bold text-success">💊 Inventario de Medicamentos</h2>
-      <table class="table table-hover">
-        <thead>
+  
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold text-primary m-0">📋 Listado de Pacientes</h2>
+      <p class="text-muted small mb-0">Historial de mascotas registradas en la veterinaria</p>
+    </div>
+    <button class="btn btn-success fw-bold d-flex align-items-center gap-1" style="border-radius: 8px;">
+      ➕ Registrar Nueva Mascota
+    </button>
+  </div>
+
+  <div class="table-responsive shadow-sm rounded-3 bg-white mb-4">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Paciente</th>
+          <th>Especie / Raza</th>
+          <th>Edad</th>
+          <th>Propietario</th>
+          <th>Estado</th>
+          <th class="text-center" style="min-width: 320px;">Acciones</th> </tr>
+      </thead>
+      <tbody>
+        @for (historia of listaHistorias; track historia.id_historia) {
           <tr>
-            <th>Medicamento</th>
-            <th>Stock</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let m of listaMedicamentos">
-            <td>{{ m.nombre }}</td>
-            <td>{{ m.stock }} unidades</td>
             <td>
-              <button type="button" class="btn btn-sm btn-outline-info" (click)="verDetalle(m)">
-                Ver Detalles
-              </button>
+              <span class="fw-bold text-primary">🐾 {{ historia.mascota?.nombre }}</span>
+            </td>
+            <td>
+              <div class="small fw-semibold text-dark">{{ historia.mascota?.especie }}</div>
+              <div class="text-muted" style="font-size: 0.75rem;">{{ historia.mascota?.raza }}</div>
+            </td>
+            <td>{{ historia.mascota?.edad }} años</td>
+            <td>{{ historia.mascota?.propietario }}</td>
+            <td>
+              <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
+                En Consulta
+              </span>
+            </td>
+            
+            <td class="text-center">
+              <div class="d-flex justify-content-center align-items-center gap-2">
+                <button type="button" class="btn btn-outline-primary btn-sm fw-semibold d-flex align-items-center gap-1">
+                  ✏️ Editar
+                </button>
+                
+                <button type="button" class="btn btn-outline-danger btn-sm fw-semibold d-flex align-items-center gap-1">
+                  🗑️ Eliminar
+                </button>
+
+                <button 
+                  type="button" 
+                  class="btn btn-outline-info btn-sm fw-semibold d-flex align-items-center gap-1"
+                  (click)="verMedicamentosPorMascota(historia)">
+                  💊 Medicamentos
+                </button>
+              </div>
             </td>
           </tr>
-        </tbody>
-      </table>
-    </div>
+        }
+      </tbody>
+    </table>
   </div>
-</div>
 
-<div class="modal" [class.show]="mostrarModalMedicamento" [style.display]="mostrarModalMedicamento ? 'block' : 'none'" style="background: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Detalle de: {{ medicamentoSeleccionado?.nombre }}</h5>
-        <button type="button" class="btn-close" (click)="cerrarModalMedicamento()"></button>
-      </div>
-      <div class="modal-body">
-        <p><strong>Stock actual:</strong> {{ medicamentoSeleccionado?.stock }}</p>
+  @if (mostrarModalMedicamento) {
+    <div class="modal d-block bg-dark bg-opacity-50 animate__animated animate__fadeIn" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content shadow" style="border-radius: 16px; border: none;">
+          
+          <div class="modal-header bg-light" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+            <h5 class="modal-title fw-bold text-primary">
+              📋 Tratamiento de: {{ mascotaSeleccionada?.nombre }}
+            </h5>
+            <button type="button" class="btn-close" (click)="cerrarModalMedicamento()"></button>
+          </div>
+
+          <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+            @if (medicamentosDeMascota.length > 0) {
+              <div class="list-group list-group-flush">
+                @for (item of medicamentosDeMascota; track item.id_prescripcion) {
+                  <div class="list-group-item px-1 py-3 border-bottom">
+                    <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                      <h6 class="mb-0 fw-bold text-dark">
+                        💊 {{ item.medicamento?.nombre || item.nombre_medicamento }}
+                      </h6>
+                      <span class="badge bg-primary rounded-pill">
+                        {{ item.cantidad }} uds.
+                      </span>
+                    </div>
+                    <p class="mb-0 text-muted small">
+                      <strong>Dosis asignada:</strong> {{ item.dosis || 'No especificada' }}
+                    </p>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="text-center py-4 my-2">
+                <span style="font-size: 2.5rem;">🎉</span>
+                <p class="text-muted fw-semibold mt-3 mb-0">Esta mascota no registra medicamentos recetados en su tratamiento actual.</p>
+              </div>
+            }
+          </div>
+
+          <div class="modal-footer border-0 bg-light" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+            <button type="button" class="btn btn-secondary fw-bold px-4" (click)="cerrarModalMedicamento()" style="border-radius: 8px;">
+              Cerrar Ventana
+            </button>
+          </div>
+
+        </div>
       </div>
     </div>
-  </div>
+  }
+
 </div>
