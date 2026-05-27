@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class MascotaService {
-  private apiUrl = 'http://localhost:3000/api/mascota'; 
+  private apiUrl = 'http://localhost:3000/api/mascota';
 
   constructor(private http: HttpClient) {}
 
@@ -22,13 +22,15 @@ export class MascotaService {
     return this.http.get<any[]>(this.apiUrl, { headers: this.obtenerHeaders() });
   }
 
-  /**
-   * Pega al endpoint específico de tu backend de Node.js/Express 
-   * encargado de resolver el JOIN de medicamentos para este ID de mascota.
-   */
   obtenerMedicamentosPorMascota(idMascota: number): Observable<any[]> {
-  const headers = this.obtenerHeaders().set('Cache-Control', 'no-cache').set('Pragma', 'no-cache');
-  return this.http.get<any[]>(`${this.apiUrl}/${idMascota}/medicamentos`, { headers });
+    const ts = new Date().getTime();
+    return this.http.get<any[]>(`${this.apiUrl}/${idMascota}/medicamentos?t=${ts}`, { headers: this.obtenerHeaders() });
+  }
+
+  obtenerHistorialPorMascota(idMascota: number): Observable<any> {
+  const url = 'http://localhost:3000/api/mascota/' + idMascota + '/historial';
+  console.log('URL historial:', url);
+  return this.http.get<any>(url, { headers: this.obtenerHeaders() });
 }
 
   crearMascota(mascota: any): Observable<any> {

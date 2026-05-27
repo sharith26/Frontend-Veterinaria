@@ -14,20 +14,13 @@ export const routes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'historial',
+    path: 'historial/:id',
     loadComponent: () => import('./pages/historial/historial.component').then(m => m.HistorialComponent),
-    canActivate: [authGuard, rolGuard(['Superadmin', 'Administrador', 'Veterinario', 'Consultas'])]
+    canActivate: [authGuard, rolGuard(['Superadmin', 'Administrador', 'Veterinario', 'Recepcionista', 'Consultas'])]
   },
   {
     path: 'sin-acceso',
     loadComponent: () => import('./pages/sin-acceso/sin-acceso.component').then(m => m.SinAccesoComponent)
   },
-  { path: '**', redirectTo: 'login' 
-
-  },
-  {
-  path: 'historial/:id',
-  loadComponent: () => import('./pages/historial/historial.component').then(m => m.HistorialComponent),
-  canActivate: [authGuard, rolGuard(['Superadmin', 'Administrador', 'Veterinario', 'Consultas'])]
-},
+  { path: '**', redirectTo: 'login' }
 ];

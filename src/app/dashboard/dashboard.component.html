@@ -54,7 +54,8 @@
       <table class="table table-hover align-middle border-0">
         <thead class="table-light text-secondary">
           <tr>
-            <th class="ps-3">Paciente</th>
+            <th class="ps-3">Historial</th>
+            <th>Paciente</th>
             <th>Especie / Raza</th>
             <th>Edad</th>
             <th>Propietario</th>
@@ -65,17 +66,15 @@
         <tbody>
           <tr *ngFor="let mascota of listaMascotas; let i = index">
 
-            <!-- Columna Paciente con botón Historial -->
             <td class="ps-3">
-              <div class="d-flex align-items-center gap-2">
-                <button *ngIf="rolService.puede('verHistorial')"
-                        (click)="verHistorial(mascota)"
-                        class="btn btn-outline-secondary btn-sm fw-semibold">
-                  📋 Historial
-                </button>
-                <span class="fw-bold text-primary">🐾 {{ mascota.nombre }}</span>
-              </div>
+              <button *ngIf="rolService.puede('verHistorial')"
+                      (click)="verHistorial(mascota)"
+                      class="btn btn-outline-secondary btn-sm fw-semibold">
+                📋 Historial
+              </button>
             </td>
+
+            <td class="fw-bold text-primary">🐾 {{ mascota.nombre }}</td>
 
             <td>
               <span class="badge bg-light text-dark border px-2 py-1">{{ mascota.especie }}</span>

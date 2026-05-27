@@ -1,52 +1,66 @@
-<div class="auth-container d-flex align-items-center justify-content-center min-vh-100 bg-light">
-  <div class="card shadow border-0 p-4" style="width: 100%; max-width: 450px; border-radius: 16px;">
-    
-    <div class="text-center mb-4">
-      <h2 class="fw-bold text-primary">🐾 VetControl</h2>
-      <p class="text-muted small">Módulo de Autenticación - Sistema Veterinario</p>
-    </div>
+<div class="login-wrapper min-vh-100 position-relative">
 
-    @if (errorMensaje) {
-      <div class="alert alert-danger text-center py-2 small mb-3" style="border-radius: 8px;">
-        ⚠️ {{ errorMensaje }}
-      </div>
-    }
-
-    <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
-      
-      <div class="mb-3">
-        <label class="form-label fw-semibold text-secondary small">Correo Electrónico</label>
-        <input 
-          type="email" 
-          formControlName="email"
-          class="form-control form-control-lg" 
-          placeholder="ejemplo@vetpaws.co"
-          required>
-      </div>
-
-      <div class="mb-4">
-        <label class="form-label fw-semibold text-secondary small">Contraseña</label>
-        <input 
-          type="password" 
-          formControlName="password"
-          class="form-control form-control-lg" 
-          placeholder="••••••••••••"
-          required>
-      </div>
-
-      <button 
-        type="submit" 
-        class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" 
-        [disabled]="loading"
-        style="border-radius: 10px;">
-        
-        @if (!loading) {
-          <span>Ingresar al Sistema</span>
-        } @else {
-          <span>⏳ Validando Acceso...</span>
-        }
-      </button>
-    </form>
-
+  <!-- Collage de fondo -->
+  <div class="collage-bg">
+    <img src="https://i.pinimg.com/736x/77/75/06/7775068b6e635e95abe7eb88f4727b72.jpg" class="collage-img img-1" alt="animal">
+    <img src="https://i.pinimg.com/736x/7a/6f/86/7a6f867d646ae952da35b16d518153cd.jpg" class="collage-img img-2" alt="animal">
+    <img src="https://i.pinimg.com/736x/a7/c0/a7/a7c0a78779dbc985f46eaaa07dd42ab3.jpg" class="collage-img img-3" alt="animal">
+    <img src="https://i.pinimg.com/736x/c6/8c/82/c68c82c58e356e42eb2242b37856df76.jpg" class="collage-img img-4" alt="animal">
   </div>
+
+  <!-- Overlay oscuro -->
+  <div class="overlay"></div>
+
+  <!-- Formulario centrado encima -->
+  <div class="login-form-wrapper d-flex align-items-center justify-content-center min-vh-100">
+    <div class="card shadow-lg border-0 p-4" style="width: 100%; max-width: 440px; border-radius: 20px;">
+
+      <div class="text-center mb-4">
+        <h2 class="fw-bold text-primary">🐾 VetControl</h2>
+        <p class="text-muted small">Módulo de Autenticación - Sistema Veterinario</p>
+      </div>
+
+      @if (errorMensaje) {
+        <div class="alert alert-danger text-center py-2 small mb-3" style="border-radius: 8px;">
+          ⚠️ {{ errorMensaje }}
+        </div>
+      }
+
+      <form [formGroup]="authForm" (ngSubmit)="onSubmit()">
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-secondary small">Correo Electrónico</label>
+          <input
+            type="email"
+            formControlName="email"
+            class="form-control form-control-lg"
+            placeholder="ejemplo@vetpaws.co"
+            required>
+        </div>
+
+        <div class="mb-4">
+          <label class="form-label fw-semibold text-secondary small">Contraseña</label>
+          <input
+            type="password"
+            formControlName="password"
+            class="form-control form-control-lg"
+            placeholder="••••••••••••"
+            required>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg w-100 fw-bold shadow-sm"
+          [disabled]="loading"
+          style="border-radius: 10px;">
+          @if (!loading) {
+            <span>Ingresar al Sistema</span>
+          } @else {
+            <span>⏳ Validando Acceso...</span>
+          }
+        </button>
+      </form>
+
+    </div>
+  </div>
+
 </div>
