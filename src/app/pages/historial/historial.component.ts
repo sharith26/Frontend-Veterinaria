@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase';
 
 @Component({
@@ -10,104 +11,73 @@ import { SupabaseService } from '../../services/supabase';
   styleUrls: ['./historial.component.css']
 })
 export class HistorialComponent implements OnInit {
-  listaHistorias: any[] = [];
-  listaMedicamentos: any[] = [];
-  listaPrescripciones: any[] = [];
 
-  // Manejo de estado del modal dinámico
-  mascotaSeleccionada: any = null;
-  medicamentosDeMascota: any[] = [];
-  mostrarModalMedicamento: boolean = false;
-  
+  idMascota: number = 0;
+  mascota: any = null;
+  historias: any[] = [];
   loading: boolean = true;
   errorMensaje: string = '';
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private supabaseService: SupabaseService
+  ) {}
 
   ngOnInit(): void {
+    this.idMascota = Number(this.route.snapshot.paramMap.get('id'));
     this.cargarDatos();
   }
 
   async cargarDatos() {
     this.loading = true;
-    this.errorMensaje = '';
-    
     try {
-      await Promise.all([
-        this.cargarHistorias(),
-        this.cargarMedicamentos(),
-        this.cargarPrescripciones()
-      ]);
-    } catch (error) {
-      console.error("Error al sincronizar las tablas de Supabase:", error);
-      this.errorMensaje = "Ocurrió un error al obtener la información de la base de datos.";
+      const { data: mascotaData, error: errorMascota } = await this.supabaseService.supabase
+        .from('mascota')
+        .select(`
+          id_mascota, nombre, fecha_nacimiento, activo,
+          especie:id_especie (nombre_especie),
+          raza:id_raza (nombre_raza),
+          propietario:id_propietario (nombres, apellidos)
+        `)
+        .eq('id_mascota', this.idMascota)
+        .single();
+
+      if (errorMascota) throw errorMascota;
+      this.mascota = mascotaData;
+
+      const { data: citas, error: errorCitas } = await this.supabaseService.supabase
+        .from('cita')
+        .select('id_cita')
+        .eq('id_mascota', this.idMascota);
+
+      if (errorCitas) throw errorCitas;
+      if (!citas || citas.length === 0) { this.loading = false; return; }
+
+      const idsCitas = citas.map((c: any) => c.id_cita);
+
+      const { data: historiasData, error: errorHistorias } = await this.supabaseService.supabase
+        .from('historia_clinica')
+        .select(`
+          id_historia, fecha_consulta, peso_kg, temperatura_c,
+          frec_cardiaca, frec_respiratoria, sintomas,
+          diagnostico, tratamiento, observaciones, id_cita
+        `)
+        .in('id_cita', idsCitas)
+        .order('fecha_consulta', { ascending: false });
+
+      if (errorHistorias) throw errorHistorias;
+      this.historias = historiasData || [];
+
+    } catch (error: any) {
+      console.error('Error cargando historial:', error);
+      this.errorMensaje = 'Error al cargar el historial clínico.';
     } finally {
       this.loading = false;
     }
   }
 
-  /**
-   * Filtra las prescripciones de la mascota en tiempo real de forma local
-   */
-  verMedicamentosPorMascota(historia: any) {
-    // Asignamos la mascota de la fila seleccionada
-    this.mascotaSeleccionada = historia.mascota;
-    
-    // Cruzamos la lista de prescripciones general buscando las que pertenezcan a esta mascota
-    this.medicamentosDeMascota = this.listaPrescripciones.filter((prescripcion: any) => {
-      return prescripcion.historia_clinica?.mascota?.nombre === historia.mascota?.nombre;
-    });
-
-    // Abrimos el modal flotante
-    this.mostrarModalMedicamento = true;
-  }
-
-  cerrarModalMedicamento() {
-    this.mostrarModalMedicamento = false;
-    this.mascotaSeleccionada = null;
-    this.medicamentosDeMascota = [];
-  }
-
-  async cargarMedicamentos() {
-    const { data, error } = await this.supabaseService.supabase
-      .from('medicamento')
-      .select('*');
-
-    if (error) throw error;
-    this.listaMedicamentos = data || [];
-  }
-
-  async cargarHistorias() {
-    const { data, error } = await this.supabaseService.supabase
-      .from('historia_clinica')
-      .select(`
-        id_historia,
-        diagnostico,
-        tratamiento,
-        observaciones,
-        fecha_apertura,
-        mascota (nombre, especie, raza, edad, propietario),
-        veterinario (nombres, apellidos)
-      `);
-      
-    if (error) throw error;
-    this.listaHistorias = data || [];
-  }
-
-  async cargarPrescripciones() {
-    const { data, error } = await this.supabaseService.supabase
-      .from('prescripcion')
-      .select(`
-        id_prescripcion,
-        dosis,
-        cantidad,
-        medicamento (nombre),
-        historia_clinica (
-          mascota (nombre)
-        )
-      `);
-
-    if (error) throw error;
-    this.listaPrescripciones = data || [];
+  volver() {
+    this.router.navigate(['/dashboard']);
   }
 }

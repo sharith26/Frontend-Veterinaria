@@ -1,116 +1,116 @@
-<div class="container mt-4">
-  
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 class="fw-bold text-primary m-0">📋 Listado de Pacientes</h2>
-      <p class="text-muted small mb-0">Historial de mascotas registradas en la veterinaria</p>
-    </div>
-    <button class="btn btn-success fw-bold d-flex align-items-center gap-1" style="border-radius: 8px;">
-      ➕ Registrar Nueva Mascota
+<nav class="navbar navbar-dark bg-dark shadow-sm">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand fw-bold text-info">🐾 VetControl</a>
+    <button (click)="volver()" class="btn btn-outline-light btn-sm fw-bold">
+      ← Volver al Dashboard
     </button>
   </div>
+</nav>
 
-  <div class="table-responsive shadow-sm rounded-3 bg-white mb-4">
-    <table class="table table-hover align-middle mb-0">
-      <thead class="table-light">
-        <tr>
-          <th>Paciente</th>
-          <th>Especie / Raza</th>
-          <th>Edad</th>
-          <th>Propietario</th>
-          <th>Estado</th>
-          <th class="text-center" style="min-width: 320px;">Acciones</th> </tr>
-      </thead>
-      <tbody>
-        @for (historia of listaHistorias; track historia.id_historia) {
-          <tr>
-            <td>
-              <span class="fw-bold text-primary">🐾 {{ historia.mascota?.nombre }}</span>
-            </td>
-            <td>
-              <div class="small fw-semibold text-dark">{{ historia.mascota?.especie }}</div>
-              <div class="text-muted" style="font-size: 0.75rem;">{{ historia.mascota?.raza }}</div>
-            </td>
-            <td>{{ historia.mascota?.edad }} años</td>
-            <td>{{ historia.mascota?.propietario }}</td>
-            <td>
-              <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-2 py-1">
-                En Consulta
-              </span>
-            </td>
-            
-            <td class="text-center">
-              <div class="d-flex justify-content-center align-items-center gap-2">
-                <button type="button" class="btn btn-outline-primary btn-sm fw-semibold d-flex align-items-center gap-1">
-                  ✏️ Editar
-                </button>
-                
-                <button type="button" class="btn btn-outline-danger btn-sm fw-semibold d-flex align-items-center gap-1">
-                  🗑️ Eliminar
-                </button>
+<div class="container mt-4">
 
-                <button 
-                  type="button" 
-                  class="btn btn-outline-info btn-sm fw-semibold d-flex align-items-center gap-1"
-                  (click)="verMedicamentosPorMascota(historia)">
-                  💊 Medicamentos
-                </button>
-              </div>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p class="text-muted mt-3">Cargando historial clínico...</p>
   </div>
 
-  @if (mostrarModalMedicamento) {
-    <div class="modal d-block bg-dark bg-opacity-50 animate__animated animate__fadeIn" tabindex="-1" role="dialog">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content shadow" style="border-radius: 16px; border: none;">
-          
-          <div class="modal-header bg-light" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
-            <h5 class="modal-title fw-bold text-primary">
-              📋 Tratamiento de: {{ mascotaSeleccionada?.nombre }}
-            </h5>
-            <button type="button" class="btn-close" (click)="cerrarModalMedicamento()"></button>
-          </div>
+  <div *ngIf="!loading && errorMensaje" class="alert alert-danger">{{ errorMensaje }}</div>
 
-          <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
-            @if (medicamentosDeMascota.length > 0) {
-              <div class="list-group list-group-flush">
-                @for (item of medicamentosDeMascota; track item.id_prescripcion) {
-                  <div class="list-group-item px-1 py-3 border-bottom">
-                    <div class="d-flex w-100 justify-content-between align-items-center mb-1">
-                      <h6 class="mb-0 fw-bold text-dark">
-                        💊 {{ item.medicamento?.nombre || item.nombre_medicamento }}
-                      </h6>
-                      <span class="badge bg-primary rounded-pill">
-                        {{ item.cantidad }} uds.
-                      </span>
-                    </div>
-                    <p class="mb-0 text-muted small">
-                      <strong>Dosis asignada:</strong> {{ item.dosis || 'No especificada' }}
-                    </p>
-                  </div>
-                }
-              </div>
-            } @else {
-              <div class="text-center py-4 my-2">
-                <span style="font-size: 2.5rem;">🎉</span>
-                <p class="text-muted fw-semibold mt-3 mb-0">Esta mascota no registra medicamentos recetados en su tratamiento actual.</p>
-              </div>
-            }
-          </div>
+  <ng-container *ngIf="!loading && !errorMensaje">
 
-          <div class="modal-footer border-0 bg-light" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
-            <button type="button" class="btn btn-secondary fw-bold px-4" (click)="cerrarModalMedicamento()" style="border-radius: 8px;">
-              Cerrar Ventana
-            </button>
-          </div>
-
+    <!-- Cabecera mascota -->
+    <div class="card border-0 shadow-sm mb-4 p-4" style="border-radius: 12px;">
+      <div class="d-flex align-items-center gap-3">
+        <div style="font-size: 3rem;">🐾</div>
+        <div>
+          <h3 class="fw-bold text-primary m-0">{{ mascota?.nombre }}</h3>
+          <p class="text-muted mb-0">
+            {{ mascota?.especie?.nombre_especie }} — {{ mascota?.raza?.nombre_raza }}
+            &nbsp;|&nbsp;
+            Propietario: <strong>{{ mascota?.propietario?.nombres }} {{ mascota?.propietario?.apellidos }}</strong>
+          </p>
+          <span class="badge mt-1" [ngClass]="mascota?.activo ? 'bg-success' : 'bg-danger'">
+            {{ mascota?.activo ? 'En Consulta' : 'De Alta' }}
+          </span>
         </div>
       </div>
     </div>
-  }
 
+    <!-- Sin historial -->
+    <div *ngIf="historias.length === 0" class="text-center py-5">
+      <span style="font-size: 3rem;">📭</span>
+      <p class="text-muted fw-semibold mt-3">Esta mascota no tiene historial clínico registrado.</p>
+    </div>
+
+    <!-- Consultas -->
+    <div *ngFor="let h of historias" class="card border-0 shadow-sm mb-3" style="border-radius: 12px;">
+      <div class="card-body p-4">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold text-secondary m-0">
+            📅 {{ h.fecha_consulta | date:'dd/MM/yyyy HH:mm' }}
+          </h5>
+          <span class="badge bg-primary px-3 py-2"># Consulta {{ h.id_historia }}</span>
+        </div>
+
+        <!-- Signos vitales -->
+        <div class="row g-2 mb-3">
+          <div class="col-6 col-md-3">
+            <div class="bg-light rounded p-2 text-center">
+              <div class="text-muted small">⚖️ Peso</div>
+              <div class="fw-bold">{{ h.peso_kg }} kg</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="bg-light rounded p-2 text-center">
+              <div class="text-muted small">🌡️ Temperatura</div>
+              <div class="fw-bold">{{ h.temperatura_c }} °C</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="bg-light rounded p-2 text-center">
+              <div class="text-muted small">❤️ Frec. Cardíaca</div>
+              <div class="fw-bold">{{ h.frec_cardiaca }} bpm</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="bg-light rounded p-2 text-center">
+              <div class="text-muted small">🫁 Frec. Respiratoria</div>
+              <div class="fw-bold">{{ h.frec_respiratoria }} rpm</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detalles clínicos -->
+        <div class="row g-3">
+          <div class="col-md-6" *ngIf="h.sintomas">
+            <div class="border-start border-warning border-3 ps-3">
+              <div class="text-muted small fw-semibold">SÍNTOMAS</div>
+              <div>{{ h.sintomas }}</div>
+            </div>
+          </div>
+          <div class="col-md-6" *ngIf="h.diagnostico">
+            <div class="border-start border-danger border-3 ps-3">
+              <div class="text-muted small fw-semibold">DIAGNÓSTICO</div>
+              <div>{{ h.diagnostico }}</div>
+            </div>
+          </div>
+          <div class="col-md-6" *ngIf="h.tratamiento">
+            <div class="border-start border-success border-3 ps-3">
+              <div class="text-muted small fw-semibold">TRATAMIENTO</div>
+              <div>{{ h.tratamiento }}</div>
+            </div>
+          </div>
+          <div class="col-md-6" *ngIf="h.observaciones">
+            <div class="border-start border-info border-3 ps-3">
+              <div class="text-muted small fw-semibold">OBSERVACIONES</div>
+              <div>{{ h.observaciones }}</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </ng-container>
 </div>

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MascotaService } from '../services/mascota.service';
-import { SupabaseService } from '../services/supabase';
+import { RolService } from '../services/rol.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,6 +24,7 @@ export class DashboardComponent implements OnInit {
   mascotaSeleccionada: any = null;
   medicamentosMascota: any[] = [];
   cargandoMedicamentos: boolean = false;
+  listaMascotas: any[] = [];
 
   mascotaForm = {
     nombre: '',
@@ -34,14 +35,11 @@ export class DashboardComponent implements OnInit {
     activo: true
   };
 
-  listaMascotas: any[] = [];
-
-  // ← Agrega ChangeDetectorRef aquí
   constructor(
     private router: Router,
     private mascotaService: MascotaService,
-    private supabaseService: SupabaseService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    public rolService: RolService
   ) {}
 
   ngOnInit(): void {
@@ -50,35 +48,34 @@ export class DashboardComponent implements OnInit {
     this.cargarMascotasReal();
   }
 
-  async cargarMascotasReal() {
-    const { data, error } = await this.supabaseService.supabase
-      .from('mascota')
-      .select(`
-        id_mascota,
-        nombre,
-        fecha_nacimiento,
-        activo,
-        especie:id_especie (nombre_especie),
-        raza:id_raza (nombre_raza),
-        propietario:id_propietario (nombres, apellidos)
-      `);
-
-    if (error) { console.error(error); return; }
-
-    this.listaMascotas = data.map((m: any) => {
-      const edad = new Date().getFullYear() - new Date(m.fecha_nacimiento).getFullYear();
-      return {
-        id: m.id_mascota,
-        nombre: m.nombre,
-        especie: Array.isArray(m.especie) ? m.especie[0]?.nombre_especie : m.especie?.nombre_especie,
-        raza: Array.isArray(m.raza) ? m.raza[0]?.nombre_raza : m.raza?.nombre_raza,
-        edad: edad,
-        dueno: Array.isArray(m.propietario)
-          ? `${m.propietario[0]?.nombres} ${m.propietario[0]?.apellidos}`
-          : `${m.propietario?.nombres} ${m.propietario?.apellidos}`,
-        activo: m.activo
-      };
+  cargarMascotasReal() {
+    this.mascotaService.obtenerMascotas().subscribe({
+      next: (data: any[]) => {
+        this.listaMascotas = data.map((m: any) => {
+          const edad = m.fecha_nacimiento
+            ? new Date().getFullYear() - new Date(m.fecha_nacimiento).getFullYear()
+            : 0;
+          return {
+            id: m.id_mascota,
+            nombre: m.nombre,
+            especie: Array.isArray(m.especie) ? m.especie[0]?.nombre_especie : m.especie?.nombre_especie,
+            raza: Array.isArray(m.raza) ? m.raza[0]?.nombre_raza : m.raza?.nombre_raza,
+            edad: edad,
+            dueno: Array.isArray(m.propietario)
+              ? `${m.propietario[0]?.nombres} ${m.propietario[0]?.apellidos}`
+              : `${m.propietario?.nombres} ${m.propietario?.apellidos}`,
+            activo: m.activo
+          };
+        });
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Error cargando mascotas:', err)
     });
+  }
+
+  // ← Nuevo método para navegar al historial
+  verHistorial(mascota: any) {
+    this.router.navigate(['/historial', mascota.id]);
   }
 
   verMedicamentosMascota(mascota: any) {
@@ -91,12 +88,12 @@ export class DashboardComponent implements OnInit {
       next: (data: any[]) => {
         this.medicamentosMascota = data || [];
         this.cargandoMedicamentos = false;
-        this.cdr.detectChanges(); // ← Fuerza la actualización de la vista
+        this.cdr.detectChanges();
       },
       error: (err: any) => {
         console.error('Error al cargar medicamentos:', err);
         this.cargandoMedicamentos = false;
-        this.cdr.detectChanges(); // ← También aquí
+        this.cdr.detectChanges();
       }
     });
   }
@@ -108,7 +105,7 @@ export class DashboardComponent implements OnInit {
   }
 
   guardarMascota() {
-    if (this.rolUsuario !== 'Superadmin' && this.rolUsuario !== 'Administrador') {
+    if (!this.rolService.puede('crearMascota') && !this.rolService.puede('editarMascota')) {
       alert('No tienes permisos para guardar mascotas.');
       return;
     }
@@ -130,12 +127,12 @@ export class DashboardComponent implements OnInit {
   }
 
   eliminarMascota(index: number) {
-    if (this.rolUsuario !== 'Superadmin' && this.rolUsuario !== 'Administrador') {
+    if (!this.rolService.puede('eliminarMascota')) {
       alert('No tienes permisos para eliminar mascotas.');
       return;
     }
     const mascota = this.listaMascotas[index];
-    const confirmar = confirm(`¿Estás seguro de deseas eliminar a ${mascota.nombre}?`);
+    const confirmar = confirm(`¿Estás seguro de que deseas eliminar a ${mascota.nombre}?`);
     if (!confirmar) return;
     if (mascota.id) {
       this.mascotaService.eliminarMascota(mascota.id).subscribe({
@@ -148,7 +145,7 @@ export class DashboardComponent implements OnInit {
   }
 
   abrirModalCrear() {
-    if (this.rolUsuario !== 'Superadmin' && this.rolUsuario !== 'Administrador') {
+    if (!this.rolService.puede('crearMascota')) {
       alert('No tienes permisos para crear mascotas.');
       return;
     }
@@ -159,7 +156,7 @@ export class DashboardComponent implements OnInit {
   }
 
   abrirModalEditar(mascota: any, index: number) {
-    if (this.rolUsuario !== 'Superadmin' && this.rolUsuario !== 'Administrador') {
+    if (!this.rolService.puede('editarMascota')) {
       alert('No tienes permisos para editar mascotas.');
       return;
     }
@@ -171,9 +168,7 @@ export class DashboardComponent implements OnInit {
   }
 
   cerrarModal() { this.mostrarModal = false; }
-
   cerrarSesion() { localStorage.clear(); this.router.navigate(['/login']); }
-
   esSuperAdmin(): boolean { return this.rolUsuario === 'Superadmin'; }
   esAdministrador(): boolean { return this.rolUsuario === 'Administrador'; }
   esUsuario(): boolean { return this.rolUsuario === 'Veterinario' || this.rolUsuario === 'Recepcionista'; }

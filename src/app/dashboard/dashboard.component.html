@@ -1,11 +1,32 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
   <div class="container-fluid px-4">
     <a class="navbar-brand fw-bold text-info" href="#">🐾 VetControl</a>
-    <div class="collapse navbar-collapse" id="navbarNav">
+    <div class="collapse navbar-collapse">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item"><a class="nav-link active fw-semibold" routerLink="/dashboard">🐶 Gestión de Mascotas</a></li>
-        <li class="nav-item"><a class="nav-link text-white-50 fw-semibold" href="#">📅 Citas Médicas</a></li>
-        <li class="nav-item"><a class="nav-link text-white-50 fw-semibold" href="#">👤 Propietarios</a></li>
+        <li class="nav-item">
+          <a class="nav-link active fw-semibold" routerLink="/dashboard">🐶 Mascotas</a>
+        </li>
+        <li class="nav-item" *ngIf="rolService.puede('verCitas')">
+          <a class="nav-link text-white-50 fw-semibold" href="#">📅 Citas</a>
+        </li>
+        <li class="nav-item" *ngIf="rolService.puede('verPropietarios')">
+          <a class="nav-link text-white-50 fw-semibold" href="#">👤 Propietarios</a>
+        </li>
+        <li class="nav-item" *ngIf="rolService.puede('verFacturas')">
+          <a class="nav-link text-white-50 fw-semibold" href="#">🧾 Facturas</a>
+        </li>
+        <li class="nav-item" *ngIf="rolService.puede('verHistorial')">
+          <a class="nav-link text-white-50 fw-semibold" routerLink="/historial">📋 Historial</a>
+        </li>
+        <li class="nav-item" *ngIf="rolService.puede('verMedicamentos')">
+          <a class="nav-link text-white-50 fw-semibold" href="#">💊 Medicamentos</a>
+        </li>
+        <li class="nav-item" *ngIf="rolService.puede('verUsuarios')">
+          <a class="nav-link text-white-50 fw-semibold" href="#">👥 Usuarios</a>
+        </li>
+        <li class="nav-item" *ngIf="rolService.puede('verVeterinarios')">
+          <a class="nav-link text-white-50 fw-semibold" href="#">🩺 Veterinarios</a>
+        </li>
       </ul>
       <div class="d-flex align-items-center">
         <span class="badge bg-primary px-3 py-2 me-3 fs-6">Rol: {{ rolUsuario }}</span>
@@ -22,7 +43,9 @@
         <h2 class="fw-bold text-secondary m-0">📋 Listado de Pacientes</h2>
         <p class="text-muted small m-0">Historial de mascotas registradas en la veterinaria</p>
       </div>
-      <button (click)="abrirModalCrear()" class="btn btn-success fw-bold px-3 py-2 rounded-3 shadow-sm">
+      <button *ngIf="rolService.puede('crearMascota')"
+              (click)="abrirModalCrear()"
+              class="btn btn-success fw-bold px-3 py-2 rounded-3 shadow-sm">
         ➕ Registrar Nueva Mascota
       </button>
     </div>
@@ -36,12 +59,24 @@
             <th>Edad</th>
             <th>Propietario</th>
             <th>Estado</th>
-            <th class="text-center" style="min-width: 280px;">Acciones</th>
+            <th class="text-center" style="min-width: 320px;">Acciones</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let mascota of listaMascotas; let i = index">
-            <td class="fw-bold text-primary ps-3">🐾 {{ mascota.nombre }}</td>
+
+            <!-- Columna Paciente con botón Historial -->
+            <td class="ps-3">
+              <div class="d-flex align-items-center gap-2">
+                <button *ngIf="rolService.puede('verHistorial')"
+                        (click)="verHistorial(mascota)"
+                        class="btn btn-outline-secondary btn-sm fw-semibold">
+                  📋 Historial
+                </button>
+                <span class="fw-bold text-primary">🐾 {{ mascota.nombre }}</span>
+              </div>
+            </td>
+
             <td>
               <span class="badge bg-light text-dark border px-2 py-1">{{ mascota.especie }}</span>
               <small class="text-muted d-block mt-1">{{ mascota.raza }}</small>
@@ -55,13 +90,18 @@
             </td>
             <td class="text-center">
               <div class="d-flex justify-content-center gap-2">
-                <button (click)="abrirModalEditar(mascota, i)" class="btn btn-outline-primary btn-sm fw-semibold">
+                <button *ngIf="rolService.puede('editarMascota')"
+                        (click)="abrirModalEditar(mascota, i)"
+                        class="btn btn-outline-primary btn-sm fw-semibold">
                   ✏️ Editar
                 </button>
-                <button (click)="eliminarMascota(i)" class="btn btn-outline-danger btn-sm fw-semibold">
+                <button *ngIf="rolService.puede('eliminarMascota')"
+                        (click)="eliminarMascota(i)"
+                        class="btn btn-outline-danger btn-sm fw-semibold">
                   🗑️ Eliminar
                 </button>
-                <button (click)="verMedicamentosMascota(mascota)" class="btn btn-outline-info btn-sm fw-semibold">
+                <button (click)="verMedicamentosMascota(mascota)"
+                        class="btn btn-outline-info btn-sm fw-semibold">
                   💊 Medicamentos
                 </button>
               </div>
@@ -72,34 +112,90 @@
     </div>
   </div>
 </div>
-<!-- Modal medicamentos por mascota -->
-<div *ngIf="mostrarModalMedicamentos" 
-     class="modal d-block" 
-     style="background: rgba(0,0,0,0.5);" 
+
+<!-- Modal crear/editar mascota -->
+<div *ngIf="mostrarModal"
+     class="modal d-block"
+     style="background: rgba(0,0,0,0.5);"
      tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content shadow" style="border-radius: 16px; border: none;">
+      <div class="modal-header bg-light" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+        <h5 class="modal-title fw-bold text-primary">
+          {{ editando ? '✏️ Editar Mascota' : '➕ Registrar Nueva Mascota' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="cerrarModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Nombre *</label>
+          <input type="text" class="form-control" [(ngModel)]="mascotaForm.nombre" placeholder="Nombre de la mascota">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Especie</label>
+          <select class="form-select" [(ngModel)]="mascotaForm.especie">
+            <option value="Canino">Canino</option>
+            <option value="Felino">Felino</option>
+            <option value="Ave">Ave</option>
+            <option value="Reptil">Reptil</option>
+            <option value="Otro">Otro</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Raza</label>
+          <input type="text" class="form-control" [(ngModel)]="mascotaForm.raza" placeholder="Raza">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Edad (años)</label>
+          <input type="number" class="form-control" [(ngModel)]="mascotaForm.edad" min="0">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Propietario *</label>
+          <input type="text" class="form-control" [(ngModel)]="mascotaForm.dueno" placeholder="Nombre del propietario">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Estado</label>
+          <select class="form-select" [(ngModel)]="mascotaForm.activo">
+            <option [ngValue]="true">En Consulta</option>
+            <option [ngValue]="false">De Alta</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer border-0 bg-light" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+        <button type="button" class="btn btn-secondary fw-bold px-4" (click)="cerrarModal()" style="border-radius: 8px;">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-success fw-bold px-4" (click)="guardarMascota()" style="border-radius: 8px;">
+          {{ editando ? 'Guardar Cambios' : 'Registrar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 
+<!-- Modal medicamentos por mascota -->
+<div *ngIf="mostrarModalMedicamentos"
+     class="modal d-block"
+     style="background: rgba(0,0,0,0.5);"
+     tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow" style="border-radius: 16px; border: none;">
       <div class="modal-header bg-light" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
         <h5 class="modal-title fw-bold text-primary">
           📋 Medicamentos de: {{ mascotaSeleccionada?.nombre }}
         </h5>
         <button type="button" class="btn-close" (click)="cerrarModalMedicamentos()"></button>
       </div>
-
       <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
         <div *ngIf="cargandoMedicamentos" class="text-center my-4">
           <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
           <p class="text-muted small mt-2 mb-0">Buscando medicamentos...</p>
         </div>
-
         <ng-container *ngIf="!cargandoMedicamentos">
           <div *ngIf="medicamentosMascota.length > 0" class="list-group list-group-flush">
             <div *ngFor="let med of medicamentosMascota" class="list-group-item px-1 py-3 border-bottom">
               <div class="d-flex justify-content-between align-items-center mb-1">
-                <h6 class="mb-0 fw-bold text-dark">
-                  💊 {{ med.medicamento?.nombre || 'Sin nombre' }}
-                </h6>
+                <h6 class="mb-0 fw-bold text-dark">💊 {{ med.medicamento?.nombre || 'Sin nombre' }}</h6>
                 <span class="badge bg-primary rounded-pill">{{ med.cantidad }} uds.</span>
               </div>
               <p class="mb-0 text-muted small">
@@ -107,22 +203,19 @@
               </p>
             </div>
           </div>
-
           <div *ngIf="medicamentosMascota.length === 0" class="text-center py-4">
             <span style="font-size: 2.5rem;">🎉</span>
             <p class="text-muted fw-semibold mt-3 mb-0">Esta mascota no tiene medicamentos recetados.</p>
           </div>
         </ng-container>
       </div>
-
       <div class="modal-footer border-0 bg-light" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
-        <button type="button" class="btn btn-secondary fw-bold px-4" 
-                (click)="cerrarModalMedicamentos()" 
+        <button type="button" class="btn btn-secondary fw-bold px-4"
+                (click)="cerrarModalMedicamentos()"
                 style="border-radius: 8px;">
           Cerrar
         </button>
       </div>
-
     </div>
   </div>
 </div>
