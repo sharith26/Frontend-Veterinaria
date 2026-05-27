@@ -1,2 +1,47 @@
 @import 'bootstrap/dist/css/bootstrap.min.css';
 @import 'tailwindcss';
+
+/* =========================================
+   FONDO GLOBAL
+========================================= */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  overflow-x: hidden;
+
+  background-image: url("https://i.pinimg.com/736x/50/7f/60/507f60eab69fec55cdd1e0a34c18fcfe.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+  /* ✅ FIX: quitar background-color + blend-mode que oscurecía/aplanaba la imagen */
+  background-color: transparent;
+}
+
+/* Angular root transparente */
+app-root {
+  display: block;
+  min-height: 100vh;
+  background: transparent !important;
+}
+
+/* Contenedores transparentes */
+.container,
+.container-fluid,
+.row,
+.col,
+main,
+.wrapper,
+.content {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+/* Dashboard con mismo fondo */
+.dashboard-container {
+  min-height: 100vh;
+  background: transparent !important;
+}

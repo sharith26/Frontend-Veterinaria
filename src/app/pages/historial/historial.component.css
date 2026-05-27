@@ -1,67 +1,94 @@
-/* Contenedor principal */
-.container {
-  max-width: 1200px;
+/* Contenedor principal con la imagen de Pinterest de fondo */
+.historial-container {
+  min-height: 100vh;
+  position: relative;
+  padding: 24px;
+  background-image: url("https://i.pinimg.com/736x/50/7f/60/507f60eab69fec55cdd1e0a34c18fcfe.jpg") !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: fixed !important;
 }
 
-/* Estilo para las tarjetas (Cards) */
-.card {
-  border-radius: 12px;
+/* Capa de contraste sutil integrada */
+.historial-container::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.08);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Forzar que el contenido de la tarjeta se posicione sobre el filtro */
+.historial-container .container-fluid {
+  position: relative;
+  z-index: 2;
+}
+
+/* TARJETA PRINCIPAL CON TU COLOR E6DADA TRANSLÚCIDO */
+.historial-container .clear-glass-card {
+  background: rgba(230, 218, 218, 0.45) !important; /* Color E6DADA con 45% opacidad */
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-radius: 22px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ELIMINACIÓN DE FONDOS BLANCOS EN LA TABLA DE ESTE COMPONENTE */
+.historial-container .table-responsive {
+  background: transparent !important;
+  border-radius: 18px;
   overflow: hidden;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1) !important;
+.historial-container .custom-glass-table {
+  background: transparent !important;
+  background-color: transparent !important;
+  --bs-table-bg: transparent !important;
+  --bs-table-striped-bg: transparent !important;
 }
 
-/* Estilo de la tabla */
-.table thead {
-  background-color: #f8f9fa;
-  text-transform: uppercase;
-  font-size: 0.85rem;
-  letter-spacing: 0.5px;
+/* Encabezado con una variante un poco más sólida de tu color */
+.historial-container .custom-glass-table thead {
+  background-color: rgba(230, 218, 218, 0.7) !important;
 }
 
-.table tbody tr:hover {
-  background-color: #f1f7ff !important;
-  cursor: default;
+.historial-container .custom-glass-table th {
+  color: #111827 !important;
+  font-weight: 900 !important;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Botones */
-.btn {
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-weight: 500;
+/* Celdas completamente transparentes */
+.historial-container .custom-glass-table td {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #111827 !important;
+  font-weight: 800 !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Modal personalizado */
-.modal {
-  background: rgba(0, 0, 0, 0.6) !important;
-  backdrop-filter: blur(4px); /* Efecto de desenfoque moderno */
+/* Efecto Hover al pasar por encima */
+.historial-container .custom-glass-table tbody tr:hover td {
+  background-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-.modal-content {
-  border-radius: 15px;
-  border: none;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+/* Botones Translúcidos */
+.historial-container .btn-outline-primary,
+.historial-container .btn-outline-danger,
+.historial-container .btn-outline-info,
+.historial-container .btn-outline-secondary {
+  background: rgba(230, 218, 218, 0.5) !important;
+  backdrop-filter: blur(4px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  color: #111827 !important;
 }
 
-.modal-header {
-  border-bottom: 1px solid #eee;
-  background-color: #fcfcfc;
-  border-radius: 15px 15px 0 0;
-}
-
-/* Resaltado de stock crítico */
-.text-danger.fw-bold {
-  background-color: #ffebee;
-  padding: 4px 8px;
-  border-radius: 5px;
-}
-
-/* Responsividad para móviles */
-@media (max-width: 768px) {
-  .table-responsive {
-    border: 0;
-  }
+.historial-container .btn-outline-primary:hover,
+.historial-container .btn-outline-danger:hover,
+.historial-container .btn-outline-info:hover,
+.historial-container .btn-outline-secondary:hover {
+  background: rgba(255, 255, 255, 0.5) !important;
 }

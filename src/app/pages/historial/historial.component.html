@@ -1,116 +1,231 @@
-<nav class="navbar navbar-dark bg-dark shadow-sm">
-  <div class="container-fluid px-4">
-    <a class="navbar-brand fw-bold text-info">🐾 VetControl</a>
-    <button (click)="volver()" class="btn btn-outline-light btn-sm fw-bold">
-      ← Volver al Dashboard
-    </button>
-  </div>
-</nav>
+<div class="historial-container">
+  <div class="container-fluid">
 
-<div class="container mt-4">
+    <div class="clear-glass-card p-4 mb-4"
+         style="background-color: rgba(230, 218, 218, 0.45) !important;
+                backdrop-filter: blur(16px) !important;
+                -webkit-backdrop-filter: blur(16px) !important;
+                border-radius: 22px !important;
+                border: 1px solid rgba(255, 255, 255, 0.35) !important;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;">
 
-  <div *ngIf="loading" class="text-center my-5">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="text-muted mt-3">Cargando historial clínico...</p>
-  </div>
-
-  <div *ngIf="!loading && errorMensaje" class="alert alert-danger">{{ errorMensaje }}</div>
-
-  <ng-container *ngIf="!loading && !errorMensaje">
-
-    <!-- Cabecera mascota -->
-    <div class="card border-0 shadow-sm mb-4 p-4" style="border-radius: 12px;">
-      <div class="d-flex align-items-center gap-3">
-        <div style="font-size: 3rem;">🐾</div>
+      <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-          <h3 class="fw-bold text-primary m-0">{{ mascota?.nombre }}</h3>
-          <p class="text-muted mb-0">
-            {{ mascota?.especie?.nombre_especie }} — {{ mascota?.raza?.nombre_raza }}
-            &nbsp;|&nbsp;
-            Propietario: <strong>{{ mascota?.propietario?.nombres }} {{ mascota?.propietario?.apellidos }}</strong>
-          </p>
-          <span class="badge mt-1" [ngClass]="mascota?.activo ? 'bg-success' : 'bg-danger'">
-            {{ mascota?.activo ? 'En Consulta' : 'De Alta' }}
-          </span>
+          <h2 class="fw-bold mb-1" style="color: #111827 !important;">📋 Historial Clínico</h2>
+          <p class="text-secondary mb-0" style="color: #374151 !important; font-weight: 600;">Registro de consultas veterinarias</p>
+        </div>
+      </div>
+
+      @if (loading) {
+        <div class="text-center py-5">
+          <div class="spinner-border text-secondary" role="status"></div>
+          <p class="mt-3 text-secondary fw-semibold">Cargando historial...</p>
+        </div>
+      }
+
+      @if (errorMensaje) {
+        <div class="alert alert-danger">⚠️ {{ errorMensaje }}</div>
+      }
+
+      @if (!loading && !errorMensaje) {
+        
+        <!-- Selector de mascota -->
+        <div class="mb-4 p-3" 
+             style="background: rgba(255,255,255,0.4) !important; 
+                    border-radius: 12px;">
+          <label class="fw-bold text-dark d-block mb-2">
+            🐾 Seleccionar Paciente:
+          </label>
+          <div class="d-flex flex-wrap gap-2">
+            @for (mascota of listaMascotas; track mascota.id) {
+              <button 
+                type="button"
+                class="btn btn-sm px-3 py-2"
+                [class.btn-primary]="mascotaSeleccionadaVer?.id === mascota.id"
+                [class.btn-outline-dark]="mascotaSeleccionadaVer?.id !== mascota.id"
+                (click)="seleccionarMascota(mascota)">
+                🐾 {{ mascota.nombre }}
+              </button>
+            }
+          </div>
+          
+          @if (mascotaSeleccionadaVer) {
+            <div class="mt-3 p-2 rounded" style="background: rgba(255,255,255,0.6);">
+              <small class="text-dark fw-semibold">
+                <strong>Propietario:</strong> {{ mascotaSeleccionadaVer.propietario }} | 
+                <strong>Especie:</strong> {{ mascotaSeleccionadaVer.especie }} |
+                <strong>Edad:</strong> {{ obtenerEdad(mascotaSeleccionadaVer.fecha_nacimiento) }}
+              </small>
+            </div>
+          }
+        </div>
+
+        <div class="table-responsive"
+             style="background: transparent !important; background-color: transparent !important; border-radius: 18px; overflow: hidden;">
+          <table class="table table-hover align-middle mb-0"
+                 style="background: transparent !important;
+                        background-color: transparent !important;
+                        --bs-table-bg: transparent !important;
+                        --bs-table-hover-bg: rgba(255, 255, 255, 0.25) !important;">
+
+            <thead style="background-color: rgba(230, 218, 218, 0.75) !important;">
+              <tr>
+                <th style="background: transparent !important; color: #111827 !important; font-weight: 800;">#</th>
+                <th style="background: transparent !important; color: #111827 !important; font-weight: 800;">Paciente</th>
+                <th style="background: transparent !important; color: #111827 !important; font-weight: 800;">Especie / Raza</th>
+                <th style="background: transparent !important; color: #111827 !important; font-weight: 800;">Propietario</th>
+                <th style="background: transparent !important; color: #111827 !important; font-weight: 800;">Fecha Consulta</th>
+                <th style="background: transparent !important; color: #111827 !important; font-weight: 800;">Diagnóstico</th>
+                <th style="background: transparent !important; color: #111827 !important; font-weight: 800;">Tratamiento</th>
+                <th style="background: transparent !important; color: #111827 !important; font-weight: 800;">Estado</th>
+                <th class="text-center" style="background: transparent !important; color: #111827 !important; font-weight: 800;">Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (historia of listaHistorias; track historia.id_historia) {
+                <tr style="background: transparent !important; background-color: transparent !important;">
+
+                  <td style="background: transparent !important; background-color: transparent !important;">
+                    <small class="fw-bold" style="color: #374151 !important;">#{{ historia.id_historia }}</small>
+                  </td>
+
+                  <td style="background: transparent !important; background-color: transparent !important;">
+                    <div class="fw-bold text-primary">🐾 {{ historia.mascota?.nombre || 'SIN NOMBRE' }}</div>
+                    <small class="text-secondary fw-semibold">
+                      {{ historia.mascota?.sexo === 'M' ? '♂ Macho' : '♀ Hembra' }}
+                    </small>
+                  </td>
+
+                  <td style="background: transparent !important; background-color: transparent !important;">
+                    <span class="badge bg-light text-dark border px-2 py-1">
+                      {{ historia.mascota?.especie || 'Sin especie' }}
+                    </span>
+                    <div class="small text-secondary fw-semibold mt-1">
+                      {{ historia.mascota?.raza || 'Sin raza' }}
+                    </div>
+                  </td>
+
+                  <td style="background: transparent !important; background-color: transparent !important;">
+                    <div class="fw-semibold text-dark">
+                      {{ historia.mascota?.propietario || 'Sin propietario' }}
+                    </div>
+                  </td>
+
+                  <td style="background: transparent !important; background-color: transparent !important;">
+                    <div class="fw-semibold text-dark">{{ formatearFecha(historia.fecha_consulta) }}</div>
+                    <small class="text-secondary fw-semibold">
+                      Peso: {{ historia.peso_kg }} kg | Temp: {{ historia.temperatura_c }}°C
+                    </small>
+                  </td>
+
+                  <td style="background: transparent !important; background-color: transparent !important;">
+                    <div style="max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #111827;"
+                         [title]="historia.diagnostico">
+                      {{ historia.diagnostico }}
+                    </div>
+                  </td>
+
+                  <td style="background: transparent !important; background-color: transparent !important;">
+                    <div style="max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #111827;"
+                         [title]="historia.tratamiento">
+                      {{ historia.tratamiento }}
+                    </div>
+                  </td>
+
+                  <td style="background: transparent !important; background-color: transparent !important;">
+                    <span class="badge px-3 py-2"
+                          [style.background]="historia.mascota?.activo ? 'rgba(34,197,94,0.8)' : 'rgba(239,68,68,0.8)'">
+                      {{ historia.mascota?.activo ? 'En Consulta' : 'De Alta' }}
+                    </span>
+                  </td>
+
+                  <td style="background: transparent !important; background-color: transparent !important;">
+                    <div class="d-flex justify-content-center gap-2">
+                      <button type="button"
+                              class="btn btn-sm fw-bold"
+                              (click)="verMedicamentosPorMascota(historia)"
+                              style="background: rgba(230, 218, 218, 0.6) !important;
+                                     border: 1px solid rgba(255, 255, 255, 0.5) !important;
+                                     color: #111827 !important;">
+                        💊 Medicamentos
+                      </button>
+                    </div>
+                  </td>
+
+                </tr>
+              }
+
+              @if (listaHistorias.length === 0) {
+                <tr>
+                  <td colspan="9" class="text-center py-5"
+                      style="background: transparent !important; background-color: transparent !important;">
+                    <h3>🐾</h3>
+                    <p class="text-secondary fw-semibold">No hay registros en el historial clínico.</p>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+    </div>
+  </div>
+
+  @if (mostrarModalMedicamento) {
+    <div class="modal d-block"
+         style="background: rgba(0,0,0,0.45) !important; z-index: 1060;">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content"
+             style="background-color: rgba(230, 218, 218, 0.8) !important;
+                    backdrop-filter: blur(20px) !important;
+                    -webkit-backdrop-filter: blur(20px) !important;
+                    border-radius: 18px !important;
+                    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+                    box-shadow: 0 12px 40px rgba(0,0,0,0.25) !important;">
+
+          <div class="modal-header border-0" style="background: transparent !important;">
+            <h5 class="modal-title fw-bold text-dark">
+              💊 Medicamentos de: {{ mascotaSeleccionada?.nombre }}
+            </h5>
+            <button type="button" class="btn-close" (click)="cerrarModalMedicamento()"></button>
+          </div>
+
+          <div class="modal-body"
+               style="background: transparent !important; max-height: 400px; overflow-y: auto;">
+            @if (medicamentosDeMascota.length > 0) {
+              <div class="list-group list-group-flush">
+                @for (item of medicamentosDeMascota; track item.id_prescripcion) {
+                  <div class="list-group-item border-bottom"
+                       style="background: transparent !important; background-color: transparent !important;">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <h6 class="fw-bold mb-0 text-dark">💊 {{ item.medicamento?.nombre }}</h6>
+                      <span class="badge bg-primary">{{ item.cantidad }} uds.</span>
+                    </div>
+                    <p class="small mb-0 text-secondary fw-semibold">
+                      <strong>Dosis:</strong> {{ item.dosis }}
+                    </p>
+                  </div>
+                }
+              </div>
+            } @else {
+              <div class="text-center py-4">
+                <h1>🎉</h1>
+                <p class="fw-bold text-secondary">Sin medicamentos registrados.</p>
+              </div>
+            }
+          </div>
+
+          <div class="modal-footer border-0" style="background: transparent !important;">
+            <button type="button" class="btn btn-secondary px-4 fw-bold"
+                    (click)="cerrarModalMedicamento()">
+              Cerrar
+            </button>
+          </div>
+
         </div>
       </div>
     </div>
-
-    <!-- Sin historial -->
-    <div *ngIf="historias.length === 0" class="text-center py-5">
-      <span style="font-size: 3rem;">📭</span>
-      <p class="text-muted fw-semibold mt-3">Esta mascota no tiene historial clínico registrado.</p>
-    </div>
-
-    <!-- Consultas -->
-    <div *ngFor="let h of historias" class="card border-0 shadow-sm mb-3" style="border-radius: 12px;">
-      <div class="card-body p-4">
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="fw-bold text-secondary m-0">
-            📅 {{ h.fecha_consulta | date:'dd/MM/yyyy HH:mm' }}
-          </h5>
-          <span class="badge bg-primary px-3 py-2"># Consulta {{ h.id_historia }}</span>
-        </div>
-
-        <!-- Signos vitales -->
-        <div class="row g-2 mb-3">
-          <div class="col-6 col-md-3">
-            <div class="bg-light rounded p-2 text-center">
-              <div class="text-muted small">⚖️ Peso</div>
-              <div class="fw-bold">{{ h.peso_kg }} kg</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="bg-light rounded p-2 text-center">
-              <div class="text-muted small">🌡️ Temperatura</div>
-              <div class="fw-bold">{{ h.temperatura_c }} °C</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="bg-light rounded p-2 text-center">
-              <div class="text-muted small">❤️ Frec. Cardíaca</div>
-              <div class="fw-bold">{{ h.frec_cardiaca }} bpm</div>
-            </div>
-          </div>
-          <div class="col-6 col-md-3">
-            <div class="bg-light rounded p-2 text-center">
-              <div class="text-muted small">🫁 Frec. Respiratoria</div>
-              <div class="fw-bold">{{ h.frec_respiratoria }} rpm</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Detalles clínicos -->
-        <div class="row g-3">
-          <div class="col-md-6" *ngIf="h.sintomas">
-            <div class="border-start border-warning border-3 ps-3">
-              <div class="text-muted small fw-semibold">SÍNTOMAS</div>
-              <div>{{ h.sintomas }}</div>
-            </div>
-          </div>
-          <div class="col-md-6" *ngIf="h.diagnostico">
-            <div class="border-start border-danger border-3 ps-3">
-              <div class="text-muted small fw-semibold">DIAGNÓSTICO</div>
-              <div>{{ h.diagnostico }}</div>
-            </div>
-          </div>
-          <div class="col-md-6" *ngIf="h.tratamiento">
-            <div class="border-start border-success border-3 ps-3">
-              <div class="text-muted small fw-semibold">TRATAMIENTO</div>
-              <div>{{ h.tratamiento }}</div>
-            </div>
-          </div>
-          <div class="col-md-6" *ngIf="h.observaciones">
-            <div class="border-start border-info border-3 ps-3">
-              <div class="text-muted small fw-semibold">OBSERVACIONES</div>
-              <div>{{ h.observaciones }}</div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-  </ng-container>
+  }
 </div>

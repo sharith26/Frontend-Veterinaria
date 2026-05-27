@@ -1,0 +1,133 @@
+/* Fondo con imagen */
+:host {
+  display: block;
+  min-height: 100vh;
+  background-image: url("https://i.pinimg.com/736x/50/24/94/5024947a36f6837c489d37f0456b52e0.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+/* Navbar */
+.navbar {
+  background: rgba(15, 23, 42, 0.80) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Tarjeta principal */
+.card {
+  background: rgba(148, 157, 176, 0.8) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Textos generales */
+.card h2, .card p, .card label {
+  color: white !important;
+}
+
+.text-muted {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.text-secondary {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.text-primary {
+  color: #60a5fa !important;
+}
+
+.fw-semibold {
+  color: white !important;
+}
+
+/* Tabla */
+.table {
+  color: white !important;
+  --bs-table-bg: transparent !important;
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.06) !important;
+}
+
+.table th, .table td {
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.table-light {
+  --bs-table-bg: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.table-hover > tbody > tr:hover > * {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: white !important;
+}
+
+/* Badges */
+.badge.bg-light {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+}
+
+/* Inputs del modal */
+.form-control {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+  border-radius: 10px;
+}
+
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.form-control:focus {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  box-shadow: none !important;
+  color: white !important;
+}
+
+.form-select {
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+/* Modal */
+.modal-content {
+  background: rgba(30, 35, 50, 0.90) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+}
+
+.modal-header.bg-light,
+.modal-footer.bg-light {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.modal-title {
+  color: #60a5fa !important;
+}
+
+.btn-close {
+  filter: invert(1);
+}
+
+.border-bottom {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* List group medicamentos */
+.list-group-item {
+  background: transparent !important;
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
