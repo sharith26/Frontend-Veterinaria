@@ -19,6 +19,11 @@ export const routes: Routes = [
     canActivate: [authGuard, rolGuard(['Superadmin', 'Administrador', 'Veterinario', 'Recepcionista', 'Consultas'])]
   },
   {
+    path: 'propietario',
+    loadComponent: () => import('./pages/propietario/propietario.component').then(m => m.PropietarioComponent),
+    canActivate: [authGuard, rolGuard(['Superadmin', 'Administrador', 'Recepcionista', 'Consultas'])]
+  },
+  {
     path: 'sin-acceso',
     loadComponent: () => import('./pages/sin-acceso/sin-acceso.component').then(m => m.SinAccesoComponent)
   },

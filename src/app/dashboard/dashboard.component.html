@@ -1,7 +1,12 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
   <div class="container-fluid px-4">
     <a class="navbar-brand fw-bold text-info" href="#">🐾 VetControl</a>
-    <div class="collapse navbar-collapse">
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
           <a class="nav-link active fw-semibold" routerLink="/dashboard">🐶 Mascotas</a>
@@ -10,7 +15,7 @@
           <a class="nav-link text-white-50 fw-semibold" href="#">📅 Citas</a>
         </li>
         <li class="nav-item" *ngIf="rolService.puede('verPropietarios')">
-          <a class="nav-link text-white-50 fw-semibold" href="#">👤 Propietarios</a>
+          <a class="nav-link text-white-50 fw-semibold" routerLink="/propietario">👤 Propietarios</a>
         </li>
         <li class="nav-item" *ngIf="rolService.puede('verFacturas')">
           <a class="nav-link text-white-50 fw-semibold" href="#">🧾 Facturas</a>
@@ -37,7 +42,7 @@
 </nav>
 
 <div class="container mt-4">
-  <div class="card p-4 shadow-sm border-0 bg-white mb-4" style="border-radius: 12px;">
+  <div class="card p-4 shadow-sm border-0 mb-4" style="border-radius: 12px;">
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h2 class="fw-bold text-secondary m-0">📋 Listado de Pacientes</h2>
@@ -65,7 +70,6 @@
         </thead>
         <tbody>
           <tr *ngFor="let mascota of listaMascotas; let i = index">
-
             <td class="ps-3">
               <button *ngIf="rolService.puede('verHistorial')"
                       (click)="verHistorial(mascota)"
@@ -73,9 +77,7 @@
                 📋 Historial
               </button>
             </td>
-
             <td class="fw-bold text-primary">🐾 {{ mascota.nombre }}</td>
-
             <td>
               <span class="badge bg-light text-dark border px-2 py-1">{{ mascota.especie }}</span>
               <small class="text-muted d-block mt-1">{{ mascota.raza }}</small>
