@@ -4,6 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MascotaService } from '../services/mascota.service';
 import { RolService } from '../services/rol.service';
+import { SupabaseService } from '../services/supabase';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,13 +26,26 @@ export class DashboardComponent implements OnInit {
   medicamentosMascota: any[] = [];
   cargandoMedicamentos: boolean = false;
   listaMascotas: any[] = [];
+  listaEspecies: any[] = [];
+  listaRazas: any[] = [];
+  listaPropietariosSelect: any[] = [];
+
+  // ✅ Propiedades historial
+  historialMascota: any[] = [];
+  mostrarModalHistorial: boolean = false;
+  mascotaHistorial: any = null;
+  cargandoHistorial: boolean = false;
 
   mascotaForm = {
     nombre: '',
-    especie: 'Canino',
-    raza: '',
-    edad: 0,
-    dueno: '',
+    id_especie: null as number | null,
+    id_raza: null as number | null,
+    fecha_nacimiento: '',
+    sexo: 'M',
+    peso_actual: 0,
+    color: '',
+    esterilizado: false,
+    id_propietario: null as number | null,
     activo: true
   };
 
@@ -39,13 +53,30 @@ export class DashboardComponent implements OnInit {
     private router: Router,
     private mascotaService: MascotaService,
     private cdr: ChangeDetectorRef,
-    public rolService: RolService
+    public rolService: RolService,
+    private supabaseService: SupabaseService  // ✅ Añadido
   ) {}
 
   ngOnInit(): void {
     this.rolUsuario = localStorage.getItem('rol') || 'Recepcionista';
     this.nombreUsuario = localStorage.getItem('usuario') || 'Admin Sistema';
     this.cargarMascotasReal();
+    this.cargarSelectores();
+  }
+
+  cargarSelectores() {
+    this.mascotaService.obtenerEspecies().subscribe({
+      next: (data) => this.listaEspecies = data,
+      error: (err: any) => console.error('Error cargando especies:', err)
+    });
+    this.mascotaService.obtenerRazas().subscribe({
+      next: (data) => this.listaRazas = data,
+      error: (err: any) => console.error('Error cargando razas:', err)
+    });
+    this.mascotaService.obtenerPropietariosLista().subscribe({
+      next: (data) => this.listaPropietariosSelect = data,
+      error: (err: any) => console.error('Error cargando propietarios:', err)
+    });
   }
 
   cargarMascotasReal() {
@@ -57,6 +88,7 @@ export class DashboardComponent implements OnInit {
             : 0;
           return {
             id: m.id_mascota,
+            id_mascota: m.id_mascota,  // ✅ Necesario para el filtro de historial
             nombre: m.nombre,
             especie: Array.isArray(m.especie) ? m.especie[0]?.nombre_especie : m.especie?.nombre_especie,
             raza: Array.isArray(m.raza) ? m.raza[0]?.nombre_raza : m.raza?.nombre_raza,
@@ -64,7 +96,15 @@ export class DashboardComponent implements OnInit {
             dueno: Array.isArray(m.propietario)
               ? `${m.propietario[0]?.nombres} ${m.propietario[0]?.apellidos}`
               : `${m.propietario?.nombres} ${m.propietario?.apellidos}`,
-            activo: m.activo
+            activo: m.activo,
+            id_especie: m.id_especie,
+            id_raza: m.id_raza,
+            id_propietario: m.id_propietario,
+            fecha_nacimiento: m.fecha_nacimiento,
+            sexo: m.sexo,
+            peso_actual: m.peso_actual,
+            color: m.color,
+            esterilizado: m.esterilizado
           };
         });
         this.cdr.detectChanges();
@@ -73,9 +113,62 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  // ← Nuevo método para navegar al historial
-  verHistorial(mascota: any) {
-    this.router.navigate(['/historial', mascota.id]);
+  async verHistorial(mascota: any) {
+    console.log('🐾 Mascota seleccionada:', mascota);
+    console.log('🔑 id_mascota:', mascota.id_mascota, '| id:', mascota.id);
+
+    this.mascotaHistorial = mascota;
+    this.mostrarModalHistorial = true;
+    this.cargandoHistorial = true;
+    this.historialMascota = [];
+
+    const { data, error } = await this.supabaseService.supabase
+      .from('historia_clinica')
+      .select(`
+        id_historia,
+        fecha_consulta,
+        peso_kg,
+        temperatura_c,
+        frec_cardiaca,
+        frec_respiratoria,
+        sintomas,
+        diagnostico,
+        tratamiento,
+        observaciones,
+        cita:id_cita (
+          id_cita,
+          id_mascota
+        )
+      `)
+      .order('fecha_consulta', { ascending: false });
+
+    console.log('📋 Data historial:', data);
+    console.log('🔍 Primer registro cita:', data?.[0]?.cita);
+
+    if (!error && data) {
+      this.historialMascota = data.filter(
+        (h: any) => h.cita?.id_mascota === mascota.id_mascota
+      );
+      console.log('✅ Filtrado:', this.historialMascota.length, 'registros');
+    } else {
+      console.error('❌ Error historial:', error);
+    }
+
+    this.cargandoHistorial = false;
+    this.cdr.detectChanges();
+  }
+
+  cerrarModalHistorial() {
+    this.mostrarModalHistorial = false;
+    this.mascotaHistorial = null;
+    this.historialMascota = [];
+  }
+
+  formatearFecha(fecha: string): string {
+    if (!fecha) return 'N/A';
+    return new Date(fecha).toLocaleDateString('es-CO', {
+      year: 'numeric', month: 'short', day: 'numeric'
+    });
   }
 
   verMedicamentosMascota(mascota: any) {
@@ -109,19 +202,19 @@ export class DashboardComponent implements OnInit {
       alert('No tienes permisos para guardar mascotas.');
       return;
     }
-    if (!this.mascotaForm.nombre.trim() || !this.mascotaForm.dueno.trim()) {
-      alert('Por favor, rellena los campos obligatorios.');
+    if (!this.mascotaForm.nombre.trim() || !this.mascotaForm.id_propietario || !this.mascotaForm.id_especie) {
+      alert('Por favor rellena los campos obligatorios: nombre, especie y propietario.');
       return;
     }
     if (this.editando && this.idMascotaSeleccionada !== null) {
       this.mascotaService.actualizarMascota(this.idMascotaSeleccionada, this.mascotaForm).subscribe({
         next: () => { this.cargarMascotasReal(); this.cerrarModal(); },
-        error: () => { this.listaMascotas[this.indexSeleccionado] = { ...this.mascotaForm, id: this.idMascotaSeleccionada }; this.cerrarModal(); }
+        error: (err: any) => console.error('Error actualizando:', err)
       });
     } else {
       this.mascotaService.crearMascota(this.mascotaForm).subscribe({
         next: () => { this.cargarMascotasReal(); this.cerrarModal(); },
-        error: () => { this.listaMascotas.unshift({ ...this.mascotaForm, id: Date.now() }); this.cerrarModal(); }
+        error: (err: any) => console.error('Error creando:', err)
       });
     }
   }
@@ -137,7 +230,7 @@ export class DashboardComponent implements OnInit {
     if (mascota.id) {
       this.mascotaService.eliminarMascota(mascota.id).subscribe({
         next: () => this.cargarMascotasReal(),
-        error: () => this.listaMascotas.splice(index, 1)
+        error: (err: any) => this.listaMascotas.splice(index, 1)
       });
     } else {
       this.listaMascotas.splice(index, 1);
@@ -151,7 +244,18 @@ export class DashboardComponent implements OnInit {
     }
     this.editando = false;
     this.idMascotaSeleccionada = null;
-    this.mascotaForm = { nombre: '', especie: 'Canino', raza: '', edad: 0, dueno: '', activo: true };
+    this.mascotaForm = {
+      nombre: '',
+      id_especie: null,
+      id_raza: null,
+      fecha_nacimiento: '',
+      sexo: 'M',
+      peso_actual: 0,
+      color: '',
+      esterilizado: false,
+      id_propietario: null,
+      activo: true
+    };
     this.mostrarModal = true;
   }
 
@@ -163,7 +267,18 @@ export class DashboardComponent implements OnInit {
     this.editando = true;
     this.indexSeleccionado = index;
     this.idMascotaSeleccionada = mascota.id || null;
-    this.mascotaForm = { ...mascota };
+    this.mascotaForm = {
+      nombre: mascota.nombre,
+      id_especie: mascota.id_especie || null,
+      id_raza: mascota.id_raza || null,
+      fecha_nacimiento: mascota.fecha_nacimiento || '',
+      sexo: mascota.sexo || 'M',
+      peso_actual: mascota.peso_actual || 0,
+      color: mascota.color || '',
+      esterilizado: mascota.esterilizado || false,
+      id_propietario: mascota.id_propietario || null,
+      activo: mascota.activo
+    };
     this.mostrarModal = true;
   }
 

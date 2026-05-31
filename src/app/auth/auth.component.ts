@@ -29,26 +29,36 @@ export class AuthComponent implements OnInit {
   }
 
   async onSubmit() {
-    if (this.authForm.invalid) {
-      this.errorMensaje = 'Por favor, introduce un correo y contraseña válidos.';
-      return;
-    }
+  if (this.authForm.invalid) {
+    this.errorMensaje = 'Por favor, introduce un correo y contraseña válidos.';
+    return;
+  }
 
-    this.loading = true;
-    this.errorMensaje = '';
-    this.authForm.disable(); 
+  this.loading = true;
+  this.errorMensaje = '';
+  this.authForm.disable(); 
 
-    const { email, password } = this.authForm.value;
+  const { email, password } = this.authForm.value;
 
-    try {
-      await this.authService.login(email, password);
-      this.router.navigate(['/dashboard']); 
-    } catch (error: any) {
-      console.error('Error capturado en el componente:', error);
-      this.errorMensaje = 'Usuario o contraseña incorrectos';
-      this.authForm.enable();
-    } finally {
-      this.loading = false;
-    }
+  try {  
+
+  const respuesta: any = await this.authService.login(email, password);
+  console.log("Estructura de respuesta:", respuesta);
+  const token = respuesta.token || respuesta.access_token; 
+  const nombreRol = respuesta.rol && respuesta.rol.length > 0 
+                    ? respuesta.rol[0].nombre_rol 
+                    : '';
+
+  if (token) {
+    localStorage.setItem('token', token);
+    localStorage.setItem('rol', nombreRol); // Guardamos el string limpio
+    this.router.navigate(['/dashboard']);
+  } else {
+    throw new Error("No se recibió token");
+  }
+
+} catch (error: any) {
+  // ... resto de tu código
+}
   }
 }

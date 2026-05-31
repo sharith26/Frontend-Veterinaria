@@ -12,7 +12,7 @@
           <a class="nav-link active fw-semibold" routerLink="/dashboard">🐶 Mascotas</a>
         </li>
         <li class="nav-item" *ngIf="rolService.puede('verCitas')">
-          <a class="nav-link text-white-50 fw-semibold" href="#">📅 Citas</a>
+          <a class="nav-link text-white-50 fw-semibold" routerLink="/citas">📅 Citas</a>
         </li>
         <li class="nav-item" *ngIf="rolService.puede('verPropietarios')">
           <a class="nav-link text-white-50 fw-semibold" routerLink="/propietario">👤 Propietarios</a>
@@ -41,75 +41,123 @@
   </div>
 </nav>
 
-<div class="container mt-4">
-  <div class="card p-4 shadow-sm border-0 mb-4" style="border-radius: 12px;">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div>
-        <h2 class="fw-bold text-secondary m-0">📋 Listado de Pacientes</h2>
-        <p class="text-muted small m-0">Historial de mascotas registradas en la veterinaria</p>
-      </div>
-      <button *ngIf="rolService.puede('crearMascota')"
-              (click)="abrirModalCrear()"
-              class="btn btn-success fw-bold px-3 py-2 rounded-3 shadow-sm">
-        ➕ Registrar Nueva Mascota
-      </button>
-    </div>
+<div class="dashboard-container">
+  <div class="container mt-4">
 
-    <div class="table-responsive">
-      <table class="table table-hover align-middle border-0">
-        <thead class="table-light text-secondary">
-          <tr>
-            <th class="ps-3">Historial</th>
-            <th>Paciente</th>
-            <th>Especie / Raza</th>
-            <th>Edad</th>
-            <th>Propietario</th>
-            <th>Estado</th>
-            <th class="text-center" style="min-width: 320px;">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let mascota of listaMascotas; let i = index">
-            <td class="ps-3">
-              <button *ngIf="rolService.puede('verHistorial')"
-                      (click)="verHistorial(mascota)"
-                      class="btn btn-outline-secondary btn-sm fw-semibold">
-                📋 Historial
-              </button>
-            </td>
-            <td class="fw-bold text-primary">🐾 {{ mascota.nombre }}</td>
-            <td>
-              <span class="badge bg-light text-dark border px-2 py-1">{{ mascota.especie }}</span>
-              <small class="text-muted d-block mt-1">{{ mascota.raza }}</small>
-            </td>
-            <td>{{ mascota.edad }} años</td>
-            <td><div class="fw-semibold">{{ mascota.dueno }}</div></td>
-            <td>
-              <span class="badge" [ngClass]="mascota.activo ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger'">
-                {{ mascota.activo ? 'En Consulta' : 'De Alta' }}
-              </span>
-            </td>
-            <td class="text-center">
-              <div class="d-flex justify-content-center gap-2">
-                <button *ngIf="rolService.puede('editarMascota')"
-                        (click)="abrirModalEditar(mascota, i)"
-                        class="btn btn-outline-primary btn-sm fw-semibold">
-                  ✏️ Editar
+    <div class="clear-glass-card p-4 mb-4"
+         style="background-color: rgba(230,218,218,0.45) !important;
+                backdrop-filter: blur(16px) !important;
+                -webkit-backdrop-filter: blur(16px) !important;
+                border-radius: 22px !important;
+                border: 1px solid rgba(255,255,255,0.35) !important;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.15) !important;">
+
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="fw-bold m-0">📋 Listado de Pacientes</h2>
+          <p class="text-secondary small m-0">Historial de mascotas registradas en la veterinaria</p>
+        </div>
+        <button *ngIf="rolService.puede('crearMascota')"
+                (click)="abrirModalCrear()"
+                class="btn btn-success fw-bold px-3 py-2 rounded-3 shadow-sm">
+          ➕ Registrar Nueva Mascota
+        </button>
+      </div>
+
+      <div class="table-responsive"
+           style="background: transparent !important; background-color: transparent !important;">
+        <table class="table table-hover align-middle border-0"
+               style="background: transparent !important;
+                      background-color: transparent !important;
+                      --bs-table-bg: transparent !important;
+                      --bs-table-striped-bg: transparent !important;
+                      --bs-table-hover-bg: rgba(255,255,255,0.2) !important;">
+          <thead style="background-color: rgba(230,218,218,0.7) !important;">
+            <tr style="background: transparent !important;">
+              <th class="ps-3" style="background: transparent !important;">Historial</th>
+              <th style="background: transparent !important;">Paciente</th>
+              <th style="background: transparent !important;">Especie / Raza</th>
+              <th style="background: transparent !important;">Edad</th>
+              <th style="background: transparent !important;">Propietario</th>
+              <th style="background: transparent !important;">Estado</th>
+              <th class="text-center" style="min-width: 320px; background: transparent !important;">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let mascota of listaMascotas; let i = index"
+                style="background: transparent !important; background-color: transparent !important;">
+
+              <td class="ps-3" style="background: transparent !important; background-color: transparent !important;">
+                <button *ngIf="rolService.puede('verHistorial')"
+                        (click)="verHistorial(mascota)"
+                        class="btn btn-outline-secondary btn-sm fw-semibold"
+                        style="background: rgba(230,218,218,0.55) !important;
+                               background-color: rgba(230,218,218,0.55) !important;
+                               border: 1px solid rgba(255,255,255,0.45) !important;
+                               color: #111827 !important;">
+                  📋 Historial
                 </button>
-                <button *ngIf="rolService.puede('eliminarMascota')"
-                        (click)="eliminarMascota(i)"
-                        class="btn btn-outline-danger btn-sm fw-semibold">
-                  🗑️ Eliminar
-                </button>
-                <button (click)="verMedicamentosMascota(mascota)"
-                        class="btn btn-outline-info btn-sm fw-semibold">
-                  💊 Medicamentos
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+              </td>
+
+              <td style="background: transparent !important; background-color: transparent !important;">
+                <span class="fw-bold text-primary">🐾 {{ mascota.nombre }}</span>
+              </td>
+
+              <td style="background: transparent !important; background-color: transparent !important;">
+                <span class="badge bg-light text-dark border px-2 py-1">{{ mascota.especie }}</span>
+                <small class="text-secondary d-block mt-1">{{ mascota.raza }}</small>
+              </td>
+
+              <td style="background: transparent !important; background-color: transparent !important;">
+                {{ mascota.edad }} años
+              </td>
+
+              <td style="background: transparent !important; background-color: transparent !important;">
+                <div class="fw-semibold">{{ mascota.dueno }}</div>
+              </td>
+
+              <td style="background: transparent !important; background-color: transparent !important;">
+                <span class="badge" [ngClass]="mascota.activo ? 'bg-success' : 'bg-danger'">
+                  {{ mascota.activo ? 'En Consulta' : 'De Alta' }}
+                </span>
+              </td>
+
+              <td class="text-center" style="background: transparent !important; background-color: transparent !important;">
+                <div class="d-flex justify-content-center gap-2">
+                  <button *ngIf="rolService.puede('editarMascota')"
+                          (click)="abrirModalEditar(mascota, i)"
+                          class="btn btn-outline-primary btn-sm fw-semibold"
+                          style="background: rgba(230,218,218,0.55) !important;
+                                 background-color: rgba(230,218,218,0.55) !important;
+                                 border: 1px solid rgba(255,255,255,0.45) !important;
+                                 color: #111827 !important;">
+                    ✏️ Editar
+                  </button>
+                  <button *ngIf="rolService.puede('eliminarMascota')"
+                          (click)="eliminarMascota(i)"
+                          class="btn btn-outline-danger btn-sm fw-semibold"
+                          style="background: rgba(230,218,218,0.55) !important;
+                                 background-color: rgba(230,218,218,0.55) !important;
+                                 border: 1px solid rgba(255,255,255,0.45) !important;
+                                 color: #111827 !important;">
+                    🗑️ Eliminar
+                  </button>
+                  <button (click)="verMedicamentosMascota(mascota)"
+                          class="btn btn-outline-info btn-sm fw-semibold"
+                          style="background: rgba(230,218,218,0.55) !important;
+                                 background-color: rgba(230,218,218,0.55) !important;
+                                 border: 1px solid rgba(255,255,255,0.45) !important;
+                                 color: #111827 !important;">
+                    💊 Medicamentos
+                  </button>
+                </div>
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
   </div>
 </div>
@@ -117,56 +165,126 @@
 <!-- Modal crear/editar mascota -->
 <div *ngIf="mostrarModal"
      class="modal d-block"
-     style="background: rgba(0,0,0,0.5);"
+     style="background: rgba(0,0,0,0.5); z-index: 1060;"
      tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow" style="border-radius: 16px; border: none;">
-      <div class="modal-header bg-light" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
-        <h5 class="modal-title fw-bold text-primary">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content"
+         style="background-color: rgba(230,218,218,0.65) !important;
+                backdrop-filter: blur(20px) !important;
+                -webkit-backdrop-filter: blur(20px) !important;
+                border-radius: 18px !important;
+                border: 1px solid rgba(255,255,255,0.35) !important;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.2) !important;">
+
+      <div class="modal-header border-0"
+           style="background: transparent !important;">
+        <h5 class="modal-title fw-bold text-dark">
           {{ editando ? '✏️ Editar Mascota' : '➕ Registrar Nueva Mascota' }}
         </h5>
         <button type="button" class="btn-close" (click)="cerrarModal()"></button>
       </div>
-      <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Nombre *</label>
-          <input type="text" class="form-control" [(ngModel)]="mascotaForm.nombre" placeholder="Nombre de la mascota">
-        </div>
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Especie</label>
-          <select class="form-select" [(ngModel)]="mascotaForm.especie">
-            <option value="Canino">Canino</option>
-            <option value="Felino">Felino</option>
-            <option value="Ave">Ave</option>
-            <option value="Reptil">Reptil</option>
-            <option value="Otro">Otro</option>
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Raza</label>
-          <input type="text" class="form-control" [(ngModel)]="mascotaForm.raza" placeholder="Raza">
-        </div>
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Edad (años)</label>
-          <input type="number" class="form-control" [(ngModel)]="mascotaForm.edad" min="0">
-        </div>
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Propietario *</label>
-          <input type="text" class="form-control" [(ngModel)]="mascotaForm.dueno" placeholder="Nombre del propietario">
-        </div>
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Estado</label>
-          <select class="form-select" [(ngModel)]="mascotaForm.activo">
-            <option [ngValue]="true">En Consulta</option>
-            <option [ngValue]="false">De Alta</option>
-          </select>
+
+      <div class="modal-body" style="background: transparent !important;">
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Nombre *</label>
+            <input type="text" class="form-control" [(ngModel)]="mascotaForm.nombre"
+                   placeholder="Nombre de la mascota"
+                   style="background: rgba(255,255,255,0.5) !important; border: 1px solid rgba(255,255,255,0.5) !important;">
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Sexo</label>
+            <select class="form-select" [(ngModel)]="mascotaForm.sexo"
+                    style="background: rgba(255,255,255,0.5) !important; border: 1px solid rgba(255,255,255,0.5) !important;">
+              <option value="M">Macho</option>
+              <option value="H">Hembra</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label fw-semibold">Esterilizado</label>
+            <select class="form-select" [(ngModel)]="mascotaForm.esterilizado"
+                    style="background: rgba(255,255,255,0.5) !important; border: 1px solid rgba(255,255,255,0.5) !important;">
+              <option [ngValue]="true">Sí</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Especie *</label>
+            <select class="form-select" [(ngModel)]="mascotaForm.id_especie"
+                    style="background: rgba(255,255,255,0.5) !important; border: 1px solid rgba(255,255,255,0.5) !important;">
+              <option [ngValue]="null">Seleccionar especie</option>
+              <option *ngFor="let e of listaEspecies" [ngValue]="e.id_especie">
+                {{ e.nombre_especie }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Raza</label>
+            <select class="form-select" [(ngModel)]="mascotaForm.id_raza"
+                    style="background: rgba(255,255,255,0.5) !important; border: 1px solid rgba(255,255,255,0.5) !important;">
+              <option [ngValue]="null">Seleccionar raza</option>
+              <option *ngFor="let r of listaRazas" [ngValue]="r.id_raza">
+                {{ r.nombre_raza }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Propietario *</label>
+            <select class="form-select" [(ngModel)]="mascotaForm.id_propietario"
+                    style="background: rgba(255,255,255,0.5) !important; border: 1px solid rgba(255,255,255,0.5) !important;">
+              <option [ngValue]="null">Seleccionar propietario</option>
+              <option *ngFor="let p of listaPropietariosSelect" [ngValue]="p.id_propietario">
+                {{ p.nombres }} {{ p.apellidos }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Fecha de Nacimiento</label>
+            <input type="date" class="form-control" [(ngModel)]="mascotaForm.fecha_nacimiento"
+                   style="background: rgba(255,255,255,0.5) !important; border: 1px solid rgba(255,255,255,0.5) !important;">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Peso (kg)</label>
+            <input type="number" class="form-control" [(ngModel)]="mascotaForm.peso_actual"
+                   min="0" step="0.1"
+                   style="background: rgba(255,255,255,0.5) !important; border: 1px solid rgba(255,255,255,0.5) !important;">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Color</label>
+            <input type="text" class="form-control" [(ngModel)]="mascotaForm.color"
+                   placeholder="Ej: Dorado"
+                   style="background: rgba(255,255,255,0.5) !important; border: 1px solid rgba(255,255,255,0.5) !important;">
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label fw-semibold">Estado</label>
+            <select class="form-select" [(ngModel)]="mascotaForm.activo"
+                    style="background: rgba(255,255,255,0.5) !important; border: 1px solid rgba(255,255,255,0.5) !important;">
+              <option [ngValue]="true">En Consulta</option>
+              <option [ngValue]="false">De Alta</option>
+            </select>
+          </div>
+
         </div>
       </div>
-      <div class="modal-footer border-0 bg-light" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
-        <button type="button" class="btn btn-secondary fw-bold px-4" (click)="cerrarModal()" style="border-radius: 8px;">
+
+      <div class="modal-footer border-0"
+           style="background: transparent !important;">
+        <button type="button" class="btn btn-secondary fw-bold px-4" (click)="cerrarModal()"
+                style="border-radius: 8px;">
           Cancelar
         </button>
-        <button type="button" class="btn btn-success fw-bold px-4" (click)="guardarMascota()" style="border-radius: 8px;">
+        <button type="button" class="btn btn-success fw-bold px-4" (click)="guardarMascota()"
+                style="border-radius: 8px;">
           {{ editando ? 'Guardar Cambios' : 'Registrar' }}
         </button>
       </div>
@@ -174,49 +292,161 @@
   </div>
 </div>
 
-<!-- Modal medicamentos por mascota -->
+<!-- Modal medicamentos -->
 <div *ngIf="mostrarModalMedicamentos"
      class="modal d-block"
-     style="background: rgba(0,0,0,0.5);"
+     style="background: rgba(0,0,0,0.5); z-index: 1060;"
      tabindex="-1">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content shadow" style="border-radius: 16px; border: none;">
-      <div class="modal-header bg-light" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
-        <h5 class="modal-title fw-bold text-primary">
+    <div class="modal-content"
+         style="background-color: rgba(230,218,218,0.65) !important;
+                backdrop-filter: blur(20px) !important;
+                -webkit-backdrop-filter: blur(20px) !important;
+                border-radius: 18px !important;
+                border: 1px solid rgba(255,255,255,0.35) !important;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.2) !important;">
+
+      <div class="modal-header border-0"
+           style="background: transparent !important;">
+        <h5 class="modal-title fw-bold text-dark">
           📋 Medicamentos de: {{ mascotaSeleccionada?.nombre }}
         </h5>
         <button type="button" class="btn-close" (click)="cerrarModalMedicamentos()"></button>
       </div>
-      <div class="modal-body" style="max-height: 400px; overflow-y: auto;">
+
+      <div class="modal-body" style="background: transparent !important; max-height: 400px; overflow-y: auto;">
         <div *ngIf="cargandoMedicamentos" class="text-center my-4">
           <div class="spinner-border text-primary spinner-border-sm" role="status"></div>
-          <p class="text-muted small mt-2 mb-0">Buscando medicamentos...</p>
+          <p class="text-secondary small mt-2 mb-0">Buscando medicamentos...</p>
         </div>
         <ng-container *ngIf="!cargandoMedicamentos">
           <div *ngIf="medicamentosMascota.length > 0" class="list-group list-group-flush">
-            <div *ngFor="let med of medicamentosMascota" class="list-group-item px-1 py-3 border-bottom">
+            <div *ngFor="let med of medicamentosMascota; let j = index"
+                 class="list-group-item px-1 py-3 border-bottom"
+                 style="background: transparent !important; background-color: transparent !important;">
               <div class="d-flex justify-content-between align-items-center mb-1">
                 <h6 class="mb-0 fw-bold text-dark">💊 {{ med.medicamento?.nombre || 'Sin nombre' }}</h6>
                 <span class="badge bg-primary rounded-pill">{{ med.cantidad }} uds.</span>
               </div>
-              <p class="mb-0 text-muted small">
+              <p class="mb-0 text-secondary small">
                 <strong>Dosis:</strong> {{ med.dosis || 'No especificada' }}
               </p>
             </div>
           </div>
           <div *ngIf="medicamentosMascota.length === 0" class="text-center py-4">
             <span style="font-size: 2.5rem;">🎉</span>
-            <p class="text-muted fw-semibold mt-3 mb-0">Esta mascota no tiene medicamentos recetados.</p>
+            <p class="text-secondary fw-semibold mt-3 mb-0">Esta mascota no tiene medicamentos recetados.</p>
           </div>
         </ng-container>
       </div>
-      <div class="modal-footer border-0 bg-light" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+
+      <div class="modal-footer border-0"
+           style="background: transparent !important;">
         <button type="button" class="btn btn-secondary fw-bold px-4"
                 (click)="cerrarModalMedicamentos()"
                 style="border-radius: 8px;">
           Cerrar
         </button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Modal Historial Clínico -->
+<div *ngIf="mostrarModalHistorial"
+     class="modal d-block"
+     style="background: rgba(0,0,0,0.5); z-index: 1060;"
+     tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content"
+         style="background-color: rgba(230,218,218,0.75) !important;
+                backdrop-filter: blur(20px) !important;
+                -webkit-backdrop-filter: blur(20px) !important;
+                border-radius: 18px !important;
+                border: 1px solid rgba(255,255,255,0.35) !important;
+                box-shadow: 0 12px 40px rgba(0,0,0,0.2) !important;">
+
+      <div class="modal-header border-0" style="background: transparent !important;">
+        <h5 class="modal-title fw-bold text-dark">
+          📋 Historial Clínico de: 🐾 {{ mascotaHistorial?.nombre }}
+        </h5>
+        <button type="button" class="btn-close" (click)="cerrarModalHistorial()"></button>
+      </div>
+
+      <div class="modal-body" style="background: transparent !important; max-height: 70vh; overflow-y: auto;">
+
+        <div *ngIf="cargandoHistorial" class="text-center py-4">
+          <div class="spinner-border text-secondary spinner-border-sm" role="status"></div>
+          <p class="text-secondary small mt-2 mb-0">Cargando historial...</p>
+        </div>
+
+        <div *ngIf="!cargandoHistorial && historialMascota.length === 0"
+             class="text-center py-4">
+          <span style="font-size: 2.5rem;">📭</span>
+          <p class="text-secondary fw-semibold mt-3 mb-0">No hay consultas registradas para esta mascota.</p>
+        </div>
+
+        <div *ngIf="!cargandoHistorial && historialMascota.length > 0">
+          <div *ngFor="let h of historialMascota; let k = index"
+               class="mb-3 p-3 rounded-3"
+               style="background: rgba(255,255,255,0.35) !important;
+                      border: 1px solid rgba(255,255,255,0.4) !important;">
+
+            <div class="d-flex justify-content-between align-items-center mb-2 flex-wrap gap-2">
+              <h6 class="fw-bold mb-0 text-dark">📅 {{ formatearFecha(h.fecha_consulta) }}</h6>
+              <div class="d-flex gap-3 flex-wrap">
+                <small class="text-secondary">⚖️ <strong>{{ h.peso_kg }} kg</strong></small>
+                <small class="text-secondary">🌡️ <strong>{{ h.temperatura_c }}°C</strong></small>
+                <small class="text-secondary">❤️ <strong>{{ h.frec_cardiaca }} lpm</strong></small>
+                <small class="text-secondary">🫁 <strong>{{ h.frec_respiratoria }} rpm</strong></small>
+              </div>
+            </div>
+
+            <hr style="border-color: rgba(0,0,0,0.1);" class="my-2">
+
+            <div class="row g-2">
+              <div class="col-md-6">
+                <p class="mb-1 small">
+                  <strong>🔍 Síntomas:</strong><br>
+                  <span class="text-secondary">{{ h.sintomas || 'No registrado' }}</span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p class="mb-1 small">
+                  <strong>🩺 Diagnóstico:</strong><br>
+                  <span class="text-secondary">{{ h.diagnostico || 'No registrado' }}</span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p class="mb-1 small">
+                  <strong>💊 Tratamiento:</strong><br>
+                  <span class="text-secondary">{{ h.tratamiento || 'No registrado' }}</span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p class="mb-1 small">
+                  <strong>📝 Observaciones:</strong><br>
+                  <span class="text-secondary">{{ h.observaciones || 'Sin observaciones' }}</span>
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer border-0" style="background: transparent !important;">
+        <small class="text-secondary me-auto">
+          {{ historialMascota.length }} consulta(s) registrada(s)
+        </small>
+        <button type="button" class="btn btn-secondary fw-bold px-4"
+                (click)="cerrarModalHistorial()"
+                style="border-radius: 8px;">
+          Cerrar
+        </button>
+      </div>
+
     </div>
   </div>
 </div>

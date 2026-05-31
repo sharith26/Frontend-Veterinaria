@@ -1,0 +1,51 @@
+<div class="container mt-4">
+  <div class="card p-4 shadow-sm">
+    <div class="d-flex justify-content-between mb-4">
+      <h3>👨‍⚕️ Veterinarios</h3>
+      <button class="btn btn-success" (click)="abrirModal()">➕ Registrar Veterinario</button>
+    </div>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Especialidad</th>
+          <th>Tarjeta</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let v of listaVeterinarios">
+          <td>{{ v.nombre }}</td>
+          <td>{{ v.especialidad }}</td>
+          <td>{{ v.tarjeta_profesional }}</td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" (click)="abrirModal(v)">✏️ Editar</button>
+            
+            <button *ngIf="rolService.puede('eliminarVeterinario')"
+                    (click)="eliminarVeterinario(v.id_veterinario, v.nombre)"
+                    class="btn btn-sm btn-outline-danger">
+              🗑️ Eliminar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal d-block" *ngIf="mostrarModal" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog">
+    <div class="modal-content p-4">
+      <h4>{{ editando ? 'Editar' : 'Registrar' }} Veterinario</h4>
+      <input class="form-control mb-2" [(ngModel)]="veterinarioForm.nombre" placeholder="Nombre completo">
+      <input class="form-control mb-2" [(ngModel)]="veterinarioForm.especialidad" placeholder="Especialidad">
+      <input class="form-control mb-2" [(ngModel)]="veterinarioForm.tarjeta_profesional" placeholder="Tarjeta Prof.">
+      
+      <div class="d-flex justify-content-end gap-2 mt-3">
+        <button class="btn btn-secondary" (click)="mostrarModal = false">Cancelar</button>
+        <button class="btn btn-primary" (click)="guardarVeterinario()">Guardar</button>
+        </div>
+    </div>
+  </div>
+</div>

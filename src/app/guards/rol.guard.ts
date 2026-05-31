@@ -1,13 +1,22 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
+import { RolService } from '../services/rol.service';
 
-export const rolGuard = (rolesPermitidos: string[]): CanActivateFn => {
+export const rolGuard = (permiso: string[] | string): CanActivateFn => {
   return () => {
+    const rolService = inject(RolService);
     const router = inject(Router);
     const rol = localStorage.getItem('rol') || '';
-    if (rolesPermitidos.includes(rol)) {
-      return true;
+
+    // Si pasaste un ARREGLO (tu lógica antigua)
+    if (Array.isArray(permiso)) {
+      if (permiso.includes(rol)) return true;
+    } 
+    // Si pasaste un STRING (tu lógica nueva con el servicio)
+    else {
+      if (rolService.puede(permiso)) return true;
     }
+
     router.navigate(['/sin-acceso']);
     return false;
   };
