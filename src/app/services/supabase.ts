@@ -13,7 +13,7 @@ export class SupabaseService {
 
     this.supabase = createClient(
       environment.supabaseUrl,
-      environment.supabasePublishableKey
+      environment.supabaseKey
     );
 
   }

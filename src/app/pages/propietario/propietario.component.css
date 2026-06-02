@@ -1,0 +1,81 @@
+.vet-wrapper {
+  min-height: 100vh;
+  background-image: url("https://i.pinimg.com/736x/50/24/94/5024947a36f6837c489d37f0456b52e0.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.card {
+  background: rgba(194, 198, 208, 0.8) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4) !important;
+}
+
+.card h2, .card h3, .card h4,
+.card th, .card td, .card label,
+.card p, .card div, .card span {
+  color: black !important;
+}
+
+.table {
+  --bs-table-bg: transparent !important;
+  --bs-table-color: black !important;
+}
+
+.table > :not(caption) > * > * {
+  background-color: transparent !important;
+  color: black !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn-outline-primary {
+  color: #000000 !important;
+  border-color: #fdfeff !important;
+  background: transparent !important;
+}
+
+.btn-outline-primary:hover {
+  background: rgba(13, 110, 253, 0.1) !important;
+}
+
+.btn-outline-danger {
+  color: #000000 !important;
+  border-color: #ffffff !important;
+  background: transparent !important;
+}
+
+.btn-outline-danger:hover {
+  background: rgba(220, 53, 69, 0.1) !important;
+}
+
+.modal-content {
+  background: rgba(30, 35, 50, 0.90) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+}
+
+.modal-content * {
+  color: white !important;
+}
+
+.form-control, .form-select {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: white !important;
+}
+
+.form-control::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.form-control:focus, .form-select:focus {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  box-shadow: none !important;
+  color: white !important;
+}

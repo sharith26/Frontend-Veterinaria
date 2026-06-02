@@ -39,12 +39,11 @@ export const routes: Routes = [
     canActivate: [authGuard, rolGuard(['Superadmin', 'Administrador', 'Veterinario', 'Recepcionista', 'Consultas'])]
   },
 
-  {
-    path: 'veterinario',
-    loadComponent: () =>
-      import('./pages/veterinario/veterinario.component').then(m => m.VeterinarioComponent),
-    canActivate: [authGuard]
-  },
+ { 
+  path: 'veterinario',
+  loadComponent: () => import('./pages/veterinario/veterinario.component').then(m => m.VeterinarioComponent),
+  canActivate: [authGuard, rolGuard('verVeterinarios')] // ¡Ya no dará error!
+},
 
   {
     path: 'sin-acceso',

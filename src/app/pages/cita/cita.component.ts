@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,7 +11,8 @@ import { RolService } from '../../services/rol.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './cita.component.html',
-  styleUrls: ['./cita.component.css']
+  styleUrls: ['./cita.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class CitaComponent implements OnInit {
 
@@ -68,11 +69,18 @@ export class CitaComponent implements OnInit {
 
   cargarSelectores() {
     this.mascotaService.obtenerMascotas().subscribe({
-      next: (data) => this.listaMascotas = data,
+      next: (data: any[]) => {
+        this.listaMascotas = data;
+        this.cdr.detectChanges();
+      },
       error: (err: any) => console.error('Error cargando mascotas:', err)
     });
+
     this.mascotaService.obtenerVeterinarios().subscribe({
-      next: (data) => this.listaVeterinarios = data,
+      next: (data: any[]) => {
+        this.listaVeterinarios = data;
+        this.cdr.detectChanges();
+      },
       error: (err: any) => console.error('Error cargando veterinarios:', err)
     });
   }

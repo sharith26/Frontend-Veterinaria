@@ -1,51 +1,68 @@
-<div class="container mt-4">
-  <div class="card p-4 shadow-sm">
-    <div class="d-flex justify-content-between mb-4">
-      <h3>👨‍⚕️ Veterinarios</h3>
-      <button class="btn btn-success" (click)="abrirModal()">➕ Registrar Veterinario</button>
-    </div>
+<div class="vet-wrapper">
 
-    <table class="table">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Especialidad</th>
-          <th>Tarjeta</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let v of listaVeterinarios">
-          <td>{{ v.nombre }}</td>
-          <td>{{ v.especialidad }}</td>
-          <td>{{ v.tarjeta_profesional }}</td>
-          <td>
-            <button class="btn btn-sm btn-outline-primary" (click)="abrirModal(v)">✏️ Editar</button>
-            
-            <button *ngIf="rolService.puede('eliminarVeterinario')"
-                    (click)="eliminarVeterinario(v.id_veterinario, v.nombre)"
-                    class="btn btn-sm btn-outline-danger">
-              🗑️ Eliminar
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="container mt-4">
+    <div class="card p-4 shadow-sm">
+      <div class="d-flex justify-content-between mb-4">
+        <h3>👨‍⚕️ Veterinarios</h3>
+        <button class="btn btn-success" (click)="abrirModal()">➕ Registrar Veterinario</button>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Nombre Completo</th>
+            <th>Especialidad</th>
+            <th>Tarjeta</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let vet of listaVeterinarios">
+            <td>{{ vet.usuario?.nombre_completo }}</td>
+            <td>{{ vet.especialidad?.nombre }}</td>
+            <td>{{ vet.tarjeta_profesional }}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-primary me-2" (click)="abrirModal(vet)">✏️ Editar</button>
+              <button *ngIf="rolService.puede('eliminarVeterinario')"
+                      (click)="eliminarVeterinario(vet.id_veterinario, vet.usuario?.nombre_completo)"
+                      class="btn btn-sm btn-outline-danger">🗑️ Eliminar</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
+
 </div>
 
+<!-- Modal crear/editar veterinario -->
 <div class="modal d-block" *ngIf="mostrarModal" style="background: rgba(0,0,0,0.5);">
-  <div class="modal-dialog">
-    <div class="modal-content p-4">
-      <h4>{{ editando ? 'Editar' : 'Registrar' }} Veterinario</h4>
-      <input class="form-control mb-2" [(ngModel)]="veterinarioForm.nombre" placeholder="Nombre completo">
-      <input class="form-control mb-2" [(ngModel)]="veterinarioForm.especialidad" placeholder="Especialidad">
-      <input class="form-control mb-2" [(ngModel)]="veterinarioForm.tarjeta_profesional" placeholder="Tarjeta Prof.">
-      
-      <div class="d-flex justify-content-end gap-2 mt-3">
-        <button class="btn btn-secondary" (click)="mostrarModal = false">Cancelar</button>
-        <button class="btn btn-primary" (click)="guardarVeterinario()">Guardar</button>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content shadow" style="border-radius: 16px; border: none;">
+
+      <div class="modal-header bg-light" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+        <h5 class="modal-title fw-bold text-primary">
+          {{ editando ? '✏️ Editar Veterinario' : '➕ Registrar Veterinario' }}
+        </h5>
+        <button type="button" class="btn-close" (click)="mostrarModal = false"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Especialidad</label>
+          <input class="form-control" [(ngModel)]="veterinarioForm.especialidad" placeholder="Especialidad">
         </div>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Tarjeta Profesional</label>
+          <input class="form-control" [(ngModel)]="veterinarioForm.tarjeta_profesional" placeholder="Tarjeta Profesional">
+        </div>
+      </div>
+
+      <div class="modal-footer border-0 bg-light" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+        <button class="btn btn-secondary fw-bold px-4" (click)="mostrarModal = false" style="border-radius: 8px;">Cancelar</button>
+        <button class="btn btn-primary fw-bold px-4" (click)="guardarVeterinario()" style="border-radius: 8px;">Guardar</button>
+      </div>
+
     </div>
   </div>
 </div>

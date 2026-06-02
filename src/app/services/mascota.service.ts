@@ -1,190 +1,62 @@
 import { Injectable } from '@angular/core';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { SupabaseService } from './supabase';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MascotaService {
+  private apiUrl = 'http://localhost:3000/api/mascota';
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(private http: HttpClient) {}
+
+  private obtenerHeaders() {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    });
+  }
 
   obtenerMascotas(): Observable<any[]> {
-    return from(
-      this.supabaseService.supabase
-        .from('mascota')
-        .select(`
-          id_mascota,
-          nombre,
-          fecha_nacimiento,
-          sexo,
-          peso_actual,
-          color,
-          activo,
-          propietario:id_propietario (nombres, apellidos),
-          especie:id_especie (nombre_especie),
-          raza:id_raza (nombre_raza)
-        `)
-        .order('nombre', { ascending: true })
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data || [];
-      })
-    );
+    return this.http.get<any[]>(this.apiUrl, { headers: this.obtenerHeaders() });
   }
 
   obtenerMedicamentosPorMascota(idMascota: number): Observable<any[]> {
-    return from(
-      this.supabaseService.supabase
-        .from('prescripcion')
-        .select(`
-          id_prescripcion,
-          dosis,
-          cantidad,
-          medicamento:id_medicamento (nombre),
-          historia_clinica:id_historia (
-            id_historia,
-            cita:id_cita (
-              id_mascota
-            )
-          )
-        `)
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return (data || []).filter((p: any) =>
-          p.historia_clinica?.cita?.id_mascota === idMascota
-        );
-      })
-    );
+    const ts = new Date().getTime();
+    return this.http.get<any[]>(`${this.apiUrl}/${idMascota}/medicamentos?t=${ts}`, { headers: this.obtenerHeaders() });
   }
 
-  obtenerHistorialPorMascota(idMascota: number): Observable<any[]> {
-    return from(
-      this.supabaseService.supabase
-        .from('historia_clinica')
-        .select(`
-          id_historia,
-          fecha_consulta,
-          peso_kg,
-          temperatura_c,
-          frec_cardiaca,
-          frec_respiratoria,
-          sintomas,
-          diagnostico,
-          tratamiento,
-          observaciones,
-          cita:id_cita (id_cita, id_mascota)
-        `)
-        .order('fecha_consulta', { ascending: false })
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return (data || []).filter((h: any) =>
-          h.cita?.id_mascota === idMascota
-        );
-      })
-    );
+  obtenerHistorialPorMascota(idMascota: number): Observable<any> {
+    const url = 'http://localhost:3000/api/mascota/' + idMascota + '/historial';
+    return this.http.get<any>(url, { headers: this.obtenerHeaders() });
   }
 
   obtenerEspecies(): Observable<any[]> {
-    return from(
-      this.supabaseService.supabase
-        .from('especie')
-        .select('id_especie, nombre_especie')
-        .order('nombre_especie', { ascending: true })
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data || [];
-      })
-    );
+    return this.http.get<any[]>('http://localhost:3000/api/especie', { headers: this.obtenerHeaders() });
   }
 
   obtenerRazas(): Observable<any[]> {
-    return from(
-      this.supabaseService.supabase
-        .from('raza')
-        .select('id_raza, nombre_raza, id_especie')
-        .order('nombre_raza', { ascending: true })
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data || [];
-      })
-    );
+    return this.http.get<any[]>('http://localhost:3000/api/raza', { headers: this.obtenerHeaders() });
   }
 
   obtenerPropietariosLista(): Observable<any[]> {
-    return from(
-      this.supabaseService.supabase
-        .from('propietario')
-        .select('id_propietario, nombres, apellidos')
-        .order('nombres', { ascending: true })
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data || [];
-      })
-    );
+    return this.http.get<any[]>('http://localhost:3000/api/propietario', { headers: this.obtenerHeaders() });
   }
 
   obtenerVeterinarios(): Observable<any[]> {
-    return from(
-      this.supabaseService.supabase
-        .from('veterinario')
-        .select('*')
-        .order('nombre', { ascending: true })
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data || [];
-      })
-    );
+    return this.http.get<any[]>('http://localhost:3000/api/veterinario', { headers: this.obtenerHeaders() });
   }
 
   crearMascota(mascota: any): Observable<any> {
-    return from(
-      this.supabaseService.supabase
-        .from('mascota')
-        .insert([mascota])
-        .select()
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data;
-      })
-    );
+    return this.http.post<any>(this.apiUrl, mascota, { headers: this.obtenerHeaders() });
   }
 
   actualizarMascota(id: number, mascota: any): Observable<any> {
-    return from(
-      this.supabaseService.supabase
-        .from('mascota')
-        .update(mascota)
-        .eq('id_mascota', id)
-        .select()
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data;
-      })
-    );
+    return this.http.put<any>(`${this.apiUrl}/${id}`, mascota, { headers: this.obtenerHeaders() });
   }
 
   eliminarMascota(id: number): Observable<any> {
-    return from(
-      this.supabaseService.supabase
-        .from('mascota')
-        .delete()
-        .eq('id_mascota', id)
-    ).pipe(
-      map(({ data, error }) => {
-        if (error) throw error;
-        return data;
-      })
-    );
+    return this.http.delete<any>(`${this.apiUrl}/${id}`, { headers: this.obtenerHeaders() });
   }
 }
