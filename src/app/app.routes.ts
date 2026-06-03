@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { rolGuard } from './guards/rol.guard';
+import { FacturaComponent } from './pages/factura/factura.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -16,6 +17,12 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./dashboard/dashboard.component').then(m => m.DashboardComponent),
     canActivate: [authGuard]
+  },
+  
+  { 
+  path: 'factura', 
+  component: FacturaComponent, 
+  canActivate: [authGuard, rolGuard('verFacturas')] // <--- ¡AQUÍ ESTÁ LA CLAVE!
   },
 
   {

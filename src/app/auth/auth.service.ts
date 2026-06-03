@@ -63,6 +63,8 @@ export class AuthService {
 
     localStorage.setItem('token', btoa(JSON.stringify(payloadFake)));
     localStorage.setItem('rol', rolFinal);
+    // ✅ Guardar id_usuario para usarlo en facturas y otros módulos
+    localStorage.setItem('id_usuario', String(data.id_usuario));
 
     return data;
   }

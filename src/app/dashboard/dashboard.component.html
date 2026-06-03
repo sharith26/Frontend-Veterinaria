@@ -87,6 +87,7 @@
             <tr *ngFor="let mascota of listaMascotas; let i = index"
                 style="background: transparent !important; background-color: transparent !important;">
 
+              <!-- Historial -->
               <td class="ps-3" style="background: transparent !important; background-color: transparent !important;">
                 <button *ngIf="rolService.puede('verHistorial')"
                         (click)="verHistorial(mascota)"
@@ -99,29 +100,41 @@
                 </button>
               </td>
 
+              <!-- Paciente -->
               <td style="background: transparent !important; background-color: transparent !important;">
                 <span class="fw-bold text-primary">🐾 {{ mascota.nombre }}</span>
               </td>
 
+              <!-- ✅ CORREGIDO: Especie / Raza — acceder a la propiedad del objeto anidado -->
               <td style="background: transparent !important; background-color: transparent !important;">
-                <span class="badge bg-light text-dark border px-2 py-1">{{ mascota.especie }}</span>
-                <small class="text-secondary d-block mt-1">{{ mascota.raza }}</small>
+                <span class="badge bg-light text-dark border px-2 py-1">
+                  {{ mascota.especie?.nombre_especie || 'Sin especie' }}
+                </span>
+                <small class="text-secondary d-block mt-1">
+                  {{ mascota.raza?.nombre_raza || 'Sin raza' }}
+                </small>
               </td>
 
+              <!-- ✅ CORREGIDO: Edad — calculada desde fecha_nacimiento -->
               <td style="background: transparent !important; background-color: transparent !important;">
-                {{ mascota.edad }} años
+                {{ calcularEdad(mascota.fecha_nacimiento) }} año(s)
               </td>
 
+              <!-- ✅ CORREGIDO: Propietario — acceder a nombres y apellidos del objeto anidado -->
               <td style="background: transparent !important; background-color: transparent !important;">
-                <div class="fw-semibold">{{ mascota.dueno }}</div>
+                <div class="fw-semibold">
+                  {{ mascota.propietario?.nombres }} {{ mascota.propietario?.apellidos }}
+                </div>
               </td>
 
+              <!-- Estado -->
               <td style="background: transparent !important; background-color: transparent !important;">
                 <span class="badge" [ngClass]="mascota.activo ? 'bg-success' : 'bg-danger'">
                   {{ mascota.activo ? 'En Consulta' : 'De Alta' }}
                 </span>
               </td>
 
+              <!-- Acciones -->
               <td class="text-center" style="background: transparent !important; background-color: transparent !important;">
                 <div class="d-flex justify-content-center gap-2">
                   <button *ngIf="rolService.puede('editarMascota')"
@@ -133,8 +146,9 @@
                                  color: #111827 !important;">
                     ✏️ Editar
                   </button>
+                  <!-- ✅ CORREGIDO: eliminarMascota ahora recibe el objeto completo para usar el id real -->
                   <button *ngIf="rolService.puede('eliminarMascota')"
-                          (click)="eliminarMascota(i)"
+                          (click)="eliminarMascota(mascota)"
                           class="btn btn-outline-danger btn-sm fw-semibold"
                           style="background: rgba(230,218,218,0.55) !important;
                                  background-color: rgba(230,218,218,0.55) !important;
@@ -352,7 +366,7 @@
   </div>
 </div>
 
-<!-- ✅ Modal Historial Clínico -->
+<!-- Modal Historial Clínico -->
 <div *ngIf="mostrarModalHistorial"
      class="modal d-block"
      style="background: rgba(0,0,0,0.5); z-index: 1060;"
