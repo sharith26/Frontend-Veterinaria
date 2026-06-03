@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MascotaService {
-  private apiUrl = 'http://localhost:3000/api/mascota';
-  private url = 'http://localhost:3000/api/mascotas';
+  private apiUrl = `${environment.apiUrl}/api/mascota`;
+  private urlMascotas = `${environment.apiUrl}/api/mascotas`;
 
   constructor(private http: HttpClient) {}
 
@@ -30,28 +30,27 @@ export class MascotaService {
   }
 
   obtenerHistorialPorMascota(idMascota: number): Observable<any> {
-  const url = `http://localhost:3000/api/mascota/${idMascota}/historial`;
-  return this.http.get<any>(url, { headers: this.obtenerHeaders() });
-}
+    return this.http.get<any>(`${this.apiUrl}/${idMascota}/historial`, { headers: this.obtenerHeaders() });
+  }
 
   obtenerEspecies(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:3000/api/especie', { headers: this.obtenerHeaders() });
+    return this.http.get<any[]>(`${environment.apiUrl}/api/especie`, { headers: this.obtenerHeaders() });
   }
 
   obtenerRazas(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:3000/api/raza', { headers: this.obtenerHeaders() });
+    return this.http.get<any[]>(`${environment.apiUrl}/api/raza`, { headers: this.obtenerHeaders() });
   }
 
   obtenerPropietariosLista(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:3000/api/propietario', { headers: this.obtenerHeaders() });
+    return this.http.get<any[]>(`${environment.apiUrl}/api/propietario`, { headers: this.obtenerHeaders() });
   }
 
-obtenerPorPropietario(idPropietario: any): Observable<any[]> {
-  return this.http.get<any[]>(`http://localhost:3000/api/mascotas/filtrar?id_propietario=${idPropietario}`);
-}
+  obtenerPorPropietario(idPropietario: any): Observable<any[]> {
+    return this.http.get<any[]>(`${this.urlMascotas}/filtrar?id_propietario=${idPropietario}`);
+  }
 
   obtenerVeterinarios(): Observable<any[]> {
-    return this.http.get<any[]>('http://localhost:3000/api/veterinario', { headers: this.obtenerHeaders() });
+    return this.http.get<any[]>(`${environment.apiUrl}/api/veterinario`, { headers: this.obtenerHeaders() });
   }
 
   crearMascota(mascota: any): Observable<any> {

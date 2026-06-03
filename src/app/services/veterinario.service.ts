@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
-import { Observable,from } from 'rxjs'; 
+import { Observable, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
@@ -9,13 +9,13 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
   providedIn: 'root'
 })
 export class VeterinarioService {
-  private apiUrl = 'http://localhost:3000/api/veterinario';
+  private apiUrl = `${environment.apiUrl}/api/veterinario`;
   private supabase: SupabaseClient;
 
   constructor(private http: HttpClient) {
     this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
   }
-  
+
   private obtenerHeaders() {
     const token = localStorage.getItem('token');
     return new HttpHeaders({
@@ -24,25 +24,25 @@ export class VeterinarioService {
     });
   }
 
-obtenerVeterinarios() {
-  return from(
-    this.supabase
-      .from('veterinario')
-      .select(`
-        id_veterinario,
-        tarjeta_profesional,
-        id_usuario,
-        id_especialidad,
-        usuario(nombre_completo),
-        especialidad(nombre)
-      `)
-  ).pipe(
-    map((res: any) => {
-      if (res.error) throw res.error;
-      return res.data || [];
-    })
-  );
-}
+  obtenerVeterinarios() {
+    return from(
+      this.supabase
+        .from('veterinario')
+        .select(`
+          id_veterinario,
+          tarjeta_profesional,
+          id_usuario,
+          id_especialidad,
+          usuario(nombre_completo),
+          especialidad(nombre)
+        `)
+    ).pipe(
+      map((res: any) => {
+        if (res.error) throw res.error;
+        return res.data || [];
+      })
+    );
+  }
 
   crearVeterinario(veterinario: any): Observable<any> {
     return this.http.post(this.apiUrl, veterinario, { headers: this.obtenerHeaders() });
