@@ -66,11 +66,29 @@ export class DashboardComponent implements OnInit {
   }
 
   cargarMascotasReal() {
-    this.mascotaService.obtenerMascotas().subscribe((data: any[]) => {
-      this.listaMascotas = data;
-      this.cdr.detectChanges();
-    });
-  }
+  this.mascotaService.obtenerMascotas().subscribe((data: any[]) => {
+    this.listaMascotas = data
+      .filter((m: any) => m.activo === true)  // ← solo activas
+      .map((m: any) => ({
+        ...m,
+        id_mascota: m.id_mascota,
+        nombre: m.nombre,
+        fecha_nacimiento: m.fecha_nacimiento,
+        sexo: m.sexo,
+        peso_actual: m.peso_actual,
+        color: m.color,
+        esterilizado: m.esterilizado,
+        activo: m.activo,
+        id_especie: m.id_especie,
+        id_raza: m.id_raza,
+        id_propietario: m.id_propietario,
+        especie: m.especie,
+        raza: m.raza,
+        propietario: m.propietario
+      }));
+    this.cdr.detectChanges();
+  });
+}
 
   // ✅ Calcula la edad en años desde la fecha de nacimiento
   calcularEdad(fechaNacimiento: string): number {
@@ -136,20 +154,31 @@ next: (data: any) => {
     this.mascotaSeleccionada = null;
   }
 
-  guardarMascota() {
-    if (this.editando && this.idMascotaSeleccionada) {
-      this.mascotaService.actualizarMascota(this.idMascotaSeleccionada, this.mascotaForm).subscribe(() => {
-        this.cargarMascotasReal();
-      });
-    } else {
-      this.mascotaService.crearMascota(this.mascotaForm).subscribe(() => {
-        this.cargarMascotasReal();
-      });
-    }
-    this.mostrarModal = false;
-    this.editando = false;
-    this.idMascotaSeleccionada = null;
+ guardarMascota() {
+  if (!this.mascotaForm.nombre?.trim()) {
+    alert('El nombre es obligatorio.');
+    return;
   }
+  if (!this.mascotaForm.id_propietario) {
+    alert('Por favor selecciona un propietario.');
+    return;
+  }
+  if (!this.mascotaForm.id_especie) {
+    alert('Por favor selecciona una especie.');
+    return;
+  }
+  if (this.editando && this.idMascotaSeleccionada) {
+    this.mascotaService.actualizarMascota(this.idMascotaSeleccionada, this.mascotaForm).subscribe({
+      next: () => { this.cargarMascotasReal(); this.cerrarModal(); },
+      error: (err: any) => console.error('Error actualizando:', err)
+    });
+  } else {
+    this.mascotaService.crearMascota(this.mascotaForm).subscribe({
+      next: () => { this.cargarMascotasReal(); this.cerrarModal(); },
+      error: (err: any) => console.error('Error creando:', err)
+    });
+  }
+}
 
   eliminarMascota(mascota: any) {
     if (confirm(`¿Estás seguro de eliminar a ${mascota.nombre}?`)) {
@@ -178,23 +207,27 @@ next: (data: any) => {
   }
 
   abrirModalEditar(mascota: any, index: number) {
-    this.editando = true;
-    this.idMascotaSeleccionada = mascota.id_mascota;
-    this.indexSeleccionado = index;
-    this.mascotaForm = {
-      nombre: mascota.nombre,
-      id_especie: mascota.id_especie ?? null,
-      id_raza: mascota.id_raza ?? null,
-      fecha_nacimiento: mascota.fecha_nacimiento ?? '',
-      sexo: mascota.sexo ?? 'M',
-      peso_actual: mascota.peso_actual ?? 0,
-      color: mascota.color ?? '',
-      esterilizado: mascota.esterilizado ?? false,
-      id_propietario: mascota.id_propietario ?? null,
-      activo: mascota.activo ?? true
-    };
-    this.mostrarModal = true;
+  if (!this.rolService.puede('editarMascota')) {
+    alert('No tienes permisos para editar mascotas.');
+    return;
   }
+  this.editando = true;
+  this.idMascotaSeleccionada = mascota.id_mascota;
+  this.indexSeleccionado = index;
+  this.mascotaForm = {
+    nombre: mascota.nombre ?? '',
+    id_especie: mascota.id_especie ? Number(mascota.id_especie) : null,
+    id_raza: mascota.id_raza ? Number(mascota.id_raza) : null,
+    fecha_nacimiento: mascota.fecha_nacimiento ?? '',
+    sexo: mascota.sexo ?? 'M',
+    peso_actual: mascota.peso_actual ?? 0,
+    color: mascota.color ?? '',
+    esterilizado: mascota.esterilizado ?? false,
+    id_propietario: mascota.id_propietario ? Number(mascota.id_propietario) : null,
+    activo: mascota.activo ?? true
+  };
+  this.mostrarModal = true;
+}
 
   cerrarModal() {
     this.mostrarModal = false;

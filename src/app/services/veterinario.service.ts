@@ -1,58 +1,34 @@
 import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { environment } from '../../environments/environment';
-import { Observable, from } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class VeterinarioService {
   private apiUrl = `${environment.apiUrl}/api/veterinario`;
-  private supabase: SupabaseClient;
+  private usuarioUrl = `${environment.apiUrl}/api/usuario`;
 
-  constructor(private http: HttpClient) {
-    this.supabase = createClient(environment.supabaseUrl, environment.supabaseKey);
+  constructor(private http: HttpClient) {}
+
+  // ELIMINA la función privada obtenerHeaders(), no la necesitas más.
+
+  obtenerVeterinarios(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl); // Sin headers manuales
   }
 
-  private obtenerHeaders() {
-    const token = localStorage.getItem('token');
-    return new HttpHeaders({
-      'Content-Type': 'application/json',
-      'Authorization': token ? `Bearer ${token}` : ''
-    });
-  }
-
-  obtenerVeterinarios() {
-    return from(
-      this.supabase
-        .from('veterinario')
-        .select(`
-          id_veterinario,
-          tarjeta_profesional,
-          id_usuario,
-          id_especialidad,
-          usuario(nombre_completo),
-          especialidad(nombre)
-        `)
-    ).pipe(
-      map((res: any) => {
-        if (res.error) throw res.error;
-        return res.data || [];
-      })
-    );
+  crearUsuario(usuario: any): Observable<any> {
+    return this.http.post<any>(this.usuarioUrl, usuario);
   }
 
   crearVeterinario(veterinario: any): Observable<any> {
-    return this.http.post(this.apiUrl, veterinario, { headers: this.obtenerHeaders() });
+    return this.http.post<any>(this.apiUrl, veterinario);
   }
 
   actualizarVeterinario(id: number, veterinario: any): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${id}`, veterinario, { headers: this.obtenerHeaders() });
+    return this.http.put<any>(`${this.apiUrl}/${id}`, veterinario);
   }
 
   eliminarVeterinario(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`, { headers: this.obtenerHeaders() });
+    return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 }

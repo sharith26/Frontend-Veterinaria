@@ -1,10 +1,12 @@
 <div class="vet-wrapper">
-
   <div class="container mt-4">
     <div class="card p-4 shadow-sm">
       <div class="d-flex justify-content-between mb-4">
         <h3>👨‍⚕️ Veterinarios</h3>
-        <button class="btn btn-success" (click)="abrirModal()">➕ Registrar Veterinario</button>
+        <button *ngIf="rolService.puede('crearVeterinario')"
+                class="btn btn-success" (click)="abrirModal()">
+          ➕ Registrar Veterinario
+        </button>
       </div>
 
       <table class="table">
@@ -22,7 +24,9 @@
             <td>{{ vet.especialidad?.nombre }}</td>
             <td>{{ vet.tarjeta_profesional }}</td>
             <td>
-              <button class="btn btn-sm btn-outline-primary me-2" (click)="abrirModal(vet)">✏️ Editar</button>
+              <button *ngIf="rolService.puede('editarVeterinario')"
+                      class="btn btn-sm btn-outline-primary me-2"
+                      (click)="abrirModal(vet)">✏️ Editar</button>
               <button *ngIf="rolService.puede('eliminarVeterinario')"
                       (click)="eliminarVeterinario(vet.id_veterinario, vet.usuario?.nombre_completo)"
                       class="btn btn-sm btn-outline-danger">🗑️ Eliminar</button>
@@ -32,12 +36,11 @@
       </table>
     </div>
   </div>
-
 </div>
 
 <!-- Modal crear/editar veterinario -->
 <div class="modal d-block" *ngIf="mostrarModal" style="background: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content shadow" style="border-radius: 16px; border: none;">
 
       <div class="modal-header bg-light" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
@@ -48,19 +51,70 @@
       </div>
 
       <div class="modal-body">
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Especialidad</label>
-          <input class="form-control" [(ngModel)]="veterinarioForm.especialidad" placeholder="Especialidad">
-        </div>
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Tarjeta Profesional</label>
-          <input class="form-control" [(ngModel)]="veterinarioForm.tarjeta_profesional" placeholder="Tarjeta Profesional">
+        <div class="row g-3">
+
+          <div class="col-md-6" *ngIf="!editando">
+            <label class="form-label fw-semibold">Nombre Completo *</label>
+            <input class="form-control" [(ngModel)]="veterinarioForm.nombre_completo"
+                   placeholder="Dr. Nombre Apellido">
+          </div>
+
+          <div class="col-md-6" *ngIf="!editando">
+            <label class="form-label fw-semibold">Email *</label>
+            <input type="email" class="form-control" [(ngModel)]="veterinarioForm.email"
+                   placeholder="correo@vetpaws.co">
+          </div>
+
+          <div class="col-md-6" *ngIf="!editando">
+            <label class="form-label fw-semibold">Teléfono</label>
+            <input type="tel" class="form-control" [(ngModel)]="veterinarioForm.telefono"
+                   placeholder="3001234567">
+          </div>
+
+          <div class="col-md-6" *ngIf="!editando">
+            <label class="form-label fw-semibold">Contraseña *</label>
+            <input type="password" class="form-control" [(ngModel)]="veterinarioForm.contrasena"
+                   placeholder="Contraseña inicial">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Especialidad</label>
+            <select class="form-select" [(ngModel)]="veterinarioForm.id_especialidad">
+              <option [ngValue]="null">Seleccionar especialidad</option>
+              <option *ngFor="let e of listaEspecialidades" [ngValue]="e.id">
+                {{ e.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Tarjeta Profesional</label>
+            <input class="form-control" [(ngModel)]="veterinarioForm.tarjeta_profesional"
+                   placeholder="TP-00000">
+          </div>
+
+          <div class="col-12" *ngIf="editando">
+            <div class="alert alert-info small mb-0">
+              ℹ️ Editando: <strong>{{ veterinarioForm.nombre_completo }}</strong> —
+              Para cambiar nombre o email, edita directamente en el módulo de Usuarios.
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <div class="modal-footer border-0 bg-light" style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
-        <button class="btn btn-secondary fw-bold px-4" (click)="mostrarModal = false" style="border-radius: 8px;">Cancelar</button>
-        <button class="btn btn-primary fw-bold px-4" (click)="guardarVeterinario()" style="border-radius: 8px;">Guardar</button>
+      <div class="modal-footer border-0 bg-light"
+           style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
+        <button class="btn btn-secondary fw-bold px-4"
+                (click)="mostrarModal = false" style="border-radius: 8px;">
+          Cancelar
+        </button>
+        <button class="btn btn-primary fw-bold px-4"
+                (click)="guardarVeterinario()"
+                [disabled]="guardando"
+                style="border-radius: 8px;">
+          {{ guardando ? 'Guardando...' : (editando ? 'Guardar Cambios' : 'Registrar') }}
+        </button>
       </div>
 
     </div>
