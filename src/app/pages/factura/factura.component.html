@@ -41,15 +41,13 @@
         <div class="col-md-4">
           <label class="form-label fw-bold">Cita relacionada</label>
           <select class="form-select" formControlName="id_cita">
-            <option value="" disabled selected>Seleccione una cita</option>
+            <option value="">Sin cita relacionada</option>
             <option *ngFor="let c of listaCitas" [value]="c.id_cita">
               Cita #{{ c.id_cita }} - Fecha: {{ c.fecha }}
             </option>
           </select>
         </div>
-      </div>
-
-      <h5 class="fw-bold">Detalle de Servicios</h5>
+      </div> <h5 class="fw-bold">Detalle de Servicios</h5>
       <table class="table align-middle">
         <thead>
           <tr>

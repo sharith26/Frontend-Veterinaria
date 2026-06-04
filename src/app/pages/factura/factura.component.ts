@@ -30,7 +30,7 @@ export class FacturaComponent implements OnInit {
       emisor_direccion: ['Carrera 15 # 93-60, Bogotá', Validators.required],
       id_propietario: ['', Validators.required],
       id_mascota: ['', Validators.required],
-      id_cita: ['', Validators.required],
+      id_cita: [''],
       fecha_emision: [new Date().toISOString().split('T')[0], Validators.required],
       fecha_vencimiento: ['', Validators.required],
       detalles: this.fb.array([])
@@ -61,22 +61,29 @@ export class FacturaComponent implements OnInit {
   }
 
   onMascotaChange(event: any): void {
-    const idMascota = event.target.value;
-    this.listaCitas = [];
-    this.facturaForm.patchValue({ id_cita: '' });
+  const idMascota = event.target.value;
+  this.listaCitas = [];
+  this.facturaForm.patchValue({ id_cita: '' });
 
-    if (idMascota) {
-      this.facturaService.obtenerCitasPorMascota(idMascota).subscribe({
-        next: (data: any[]) => {
-          this.listaCitas = data;
-          if (data.length === 0) {
-            alert('Esta mascota no tiene citas registradas.');
+  if (idMascota) {
+    // 1. Obtenemos todas las citas de la mascota
+    this.facturaService.obtenerCitasPorMascota(idMascota).subscribe({
+      next: (todasLasCitas: any[]) => {
+        // 2. Obtenemos las que YA tienen factura
+        this.facturaService.obtenerCitasFacturadas().subscribe(citasYaFacturadas => {
+          
+          // 3. Filtramos: solo dejamos las que NO están en la lista de facturadas
+          const idsFacturados = citasYaFacturadas.map(f => f.id_cita);
+          this.listaCitas = todasLasCitas.filter(cita => !idsFacturados.includes(cita.id));
+          
+          if (this.listaCitas.length === 0) {
+            alert('Esta mascota no tiene citas pendientes de facturar.');
           }
-        },
-        error: (err: any) => console.error('Error al cargar citas', err)
-      });
-    }
+        });
+      }
+    });
   }
+}
 
   get detalles(): FormArray {
     return this.facturaForm.get('detalles') as FormArray;
@@ -96,45 +103,50 @@ export class FacturaComponent implements OnInit {
   }
 
   guardar() {
-    if (this.facturaForm.valid) {
-      const subtotal = this.calcularSubtotal();
+  if (this.facturaForm.valid) {
+    const subtotal = this.calcularSubtotal();
+    const idUsuario = localStorage.getItem('id_usuario') || localStorage.getItem('id') || localStorage.getItem('userId');
 
-      // ✅ Obtener id_usuario desde localStorage (guardado al hacer login)
-      const idUsuario = localStorage.getItem('id_usuario')
-        || localStorage.getItem('id')
-        || localStorage.getItem('userId');
-
-      if (!idUsuario) {
-        alert('No se pudo obtener el usuario de sesión. Por favor vuelve a iniciar sesión.');
-        return;
-      }
-
-      const facturaData = {
-        ...this.facturaForm.value,
-        fecha: this.facturaForm.value.fecha_emision,
-        estado: 'pendiente',
-        subtotal: subtotal,
-        iva: subtotal * this.ivaPorcentaje,
-        total: subtotal * (1 + this.ivaPorcentaje),
-        id_usuario: Number(idUsuario)  // ✅ Campo requerido por la tabla factura
-      };
-
-      this.facturaService.crearFacturaConDetalles(facturaData).subscribe({
-        next: () => {
-          alert('¡Factura guardada correctamente!');
-          this.facturaForm.reset({
-            emisor_nit: '900.123.456-7',
-            emisor_direccion: 'Carrera 15 # 93-60, Bogotá',
-            fecha_emision: new Date().toISOString().split('T')[0]
-          });
-          this.detalles.clear();
-          this.listaMascotas = [];
-          this.listaCitas = [];
-        },
-        error: (err: any) => alert('Error: ' + (err.error?.error || 'Error al guardar'))
-      });
-    } else {
-      alert('Por favor, completa todos los campos requeridos.');
+    // ✅ Lógica para manejar el id_cita nulo
+    let citaSeleccionada = this.facturaForm.value.id_cita;
+    if (citaSeleccionada === "") {
+        citaSeleccionada = null;
     }
+
+    const facturaData = {
+      ...this.facturaForm.value,
+      id_cita: citaSeleccionada, // Enviamos null o el ID
+      fecha: this.facturaForm.value.fecha_emision,
+      estado: 'pendiente',
+      subtotal: subtotal,
+      iva: subtotal * this.ivaPorcentaje,
+      total: subtotal * (1 + this.ivaPorcentaje),
+      id_usuario: Number(idUsuario)
+    };
+
+    this.facturaService.crearFacturaConDetalles(facturaData).subscribe({
+      next: () => {
+        alert('¡Factura guardada correctamente!');
+        this.facturaForm.reset({
+          emisor_nit: '900.123.456-7',
+          emisor_direccion: 'Carrera 15 # 93-60, Bogotá',
+          fecha_emision: new Date().toISOString().split('T')[0]
+        });
+        this.detalles.clear();
+        this.listaMascotas = [];
+        this.listaCitas = [];
+      },
+      error: (err: any) => {
+        // Validación mejorada para el error de duplicidad
+        if (err.status === 400 && err.error?.message?.includes('uq_factura_cita')) {
+          alert('Esta cita ya ha sido facturada anteriormente. Por favor, seleccione otra.');
+        } else {
+          alert('Error al guardar: ' + (err.error?.message || 'Ocurrió un error inesperado'));
+        }
+      }
+    }); // <--- Aquí cerramos el objeto del subscribe
+  } else {
+    alert('Por favor, completa todos los campos requeridos.');
   }
+}
 }

@@ -24,6 +24,10 @@ export class FacturaService {
     return this.http.get<any[]>(`${environment.apiUrl}/api/citas/mascota/${idMascota}`);
   }
 
+  obtenerCitasFacturadas(): Observable<any[]> {
+    return this.http.get<any[]>(`${environment.apiUrl}/api/facturas/citas-facturadas`);
+  }
+
   obtenerFacturaCompleta(id: number) {
     return forkJoin({
       factura: this.http.get(`${this.url}/${id}`, { headers: this.obtenerHeaders() }),
