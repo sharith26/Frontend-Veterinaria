@@ -10,10 +10,8 @@ export class VeterinarioService {
 
   constructor(private http: HttpClient) {}
 
-  // ELIMINA la función privada obtenerHeaders(), no la necesitas más.
-
   obtenerVeterinarios(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl); // Sin headers manuales
+    return this.http.get<any[]>(this.apiUrl); 
   }
 
   crearUsuario(usuario: any): Observable<any> {

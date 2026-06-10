@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MascotaService } from '../services/mascota.service'; // Asegúrate de que esta ruta sea correcta hacia tu archivo service
+import { MascotaService } from '../services/mascota.service'; 
 
 @Component({
   selector: 'app-mascota',
@@ -12,7 +12,6 @@ import { MascotaService } from '../services/mascota.service'; // Asegúrate de q
 export class MascotaComponent implements OnInit {
   mascotas: any[] = [];
   
-  // Variables de control para la ventana modal interactiva
   mascotaSeleccionada: any = null;
   medicamentosMascota: any[] = [];
   mostrarModalMedicamentos: boolean = false;
@@ -35,17 +34,12 @@ export class MascotaComponent implements OnInit {
     });
   }
 
-  /**
-   * Captura la mascota seleccionada en la fila, activa la visibilidad 
-   * del modal y realiza la consulta asíncrona al backend
-   */
   verMedicamentos(mascota: any) {
     this.mascotaSeleccionada = mascota;
     this.medicamentosMascota = [];
     this.cargandoMedicamentos = true;
     this.mostrarModalMedicamentos = true;
 
-    // Se consume pasando el ID único de la mascota (id_mascota)
     this.mascotaService.obtenerMedicamentosPorMascota(mascota.id_mascota).subscribe({
       next: (data: any[]) => {
         this.medicamentosMascota = data || [];

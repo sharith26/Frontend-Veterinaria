@@ -13,17 +13,21 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h2 class="fw-bold m-0">👤 Listado de Propietarios</h2>
-        <p class="text-muted small m-0">Propietarios registrados en el sistema</p>
+        <p class="text-muted small m-0">
+          Propietarios registrados en el sistema
+        </p>
       </div>
-      <button *ngIf="rolService.puede('crearPropietario')"
-              (click)="abrirModalCrear()"
-              class="btn btn-success fw-bold px-3 py-2 rounded-3 shadow-sm">
+
+      <button
+        *ngIf="rolService.puede('crearPropietario')"
+        (click)="abrirModalCrear()"
+        class="btn btn-success fw-bold px-3 py-2 rounded-3 shadow-sm">
         ➕ Registrar Propietario
       </button>
     </div>
 
     <div *ngIf="loading" class="text-center py-4">
-      <div class="spinner-border text-primary" role="status"></div>
+      <div class="spinner-border text-primary"></div>
       <p class="text-muted mt-2">Cargando propietarios...</p>
     </div>
 
@@ -38,35 +42,43 @@
             <th>Teléfono</th>
             <th>Email</th>
             <th>Dirección</th>
-            <th *ngIf="rolService.puede('editarPropietario') || rolService.puede('eliminarPropietario')"
-                class="text-center">Acciones</th>
+
+            <th
+              *ngIf="rolService.puede('editarPropietario') || rolService.puede('eliminarPropietario')"
+              class="text-center">
+              Acciones
+            </th>
           </tr>
         </thead>
+
         <tbody>
           <tr *ngFor="let p of listaPropietarios">
-            <td class="text-muted small">{{ p.id_propietario }}</td>
-            <td class="fw-semibold">{{ p.nombres }} {{ p.apellidos }}</td>
-            <td>
-              <span class="badge bg-secondary px-2 py-1">{{ p.tipo_documento }}</span>
-            </td>
+            <td>{{ p.id_propietario }}</td>
+            <td>{{ p.nombres }} {{ p.apellidos }}</td>
+            <td>{{ p.tipo_documento }}</td>
             <td>{{ p.numero_documento }}</td>
             <td>{{ p.telefono }}</td>
             <td>{{ p.email }}</td>
-            <td class="text-muted small">{{ p.direccion }}</td>
-            <td *ngIf="rolService.puede('editarPropietario') || rolService.puede('eliminarPropietario')"
-                class="text-center">
-              <div class="d-flex justify-content-center gap-2">
-                <button *ngIf="rolService.puede('editarPropietario')"
-                        (click)="abrirModalEditar(p)"
-                        class="btn btn-outline-primary btn-sm fw-semibold">
-                  ✏️ Editar
-                </button>
-                <button *ngIf="rolService.puede('eliminarPropietario')"
-                        (click)="eliminarPropietario(p.id_propietario, p.nombres)"
-                        class="btn btn-outline-danger btn-sm fw-semibold">
-                  🗑️ Eliminar
-                </button>
-              </div>
+            <td>{{ p.direccion }}</td>
+
+            <td
+              *ngIf="rolService.puede('editarPropietario') || rolService.puede('eliminarPropietario')"
+              class="text-center">
+
+              <button
+                *ngIf="rolService.puede('editarPropietario')"
+                (click)="abrirModalEditar(p)"
+                class="btn btn-outline-primary btn-sm me-2">
+                ✏️ Editar
+              </button>
+
+              <button
+                *ngIf="rolService.puede('eliminarPropietario')"
+                (click)="eliminarPropietario(p.id_propietario, p.nombres)"
+                class="btn btn-outline-danger btn-sm">
+                🗑️ Eliminar
+              </button>
+
             </td>
           </tr>
         </tbody>
@@ -76,101 +88,176 @@
   </div>
 </div>
 
-<!-- Modal crear/editar propietario -->
-<div *ngIf="mostrarModal"
-     class="modal d-block"
-     style="background: rgba(0,0,0,0.5);"
-     tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content shadow" style="border-radius: 16px; border: none;">
+<!-- MODAL -->
+<div
+  *ngIf="mostrarModal"
+  class="modal d-block"
+  style="background: rgba(0,0,0,0.5);">
 
-      <div class="modal-header bg-light"
-           style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div
+      class="modal-content shadow"
+      style="border-radius:16px; border:none;">
+
+      <div class="modal-header bg-light">
         <h5 class="modal-title fw-bold text-primary">
           {{ editando ? '✏️ Editar Propietario' : '➕ Registrar Propietario' }}
         </h5>
-        <button type="button" class="btn-close" (click)="cerrarModal()"></button>
+
+        <button
+          type="button"
+          class="btn-close"
+          (click)="cerrarModal()">
+        </button>
       </div>
 
       <div class="modal-body">
+
         <div class="row g-3">
 
+          <!-- NOMBRES -->
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Nombres *</label>
-            <input type="text"
-                   class="form-control"
-                   [(ngModel)]="propietarioForm.nombres"
-                   placeholder="Nombres completos">
+            <label class="form-label fw-semibold">
+              Nombres *
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="propietarioForm.nombres">
+
           </div>
 
+          <!-- APELLIDOS -->
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Apellidos *</label>
-            <input type="text"
-                   class="form-control"
-                   [(ngModel)]="propietarioForm.apellidos"
-                   placeholder="Apellidos completos">
+            <label class="form-label fw-semibold">
+              Apellidos *
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="propietarioForm.apellidos">
+
           </div>
 
+          <!-- TIPO DOCUMENTO -->
           <div class="col-md-4">
-            <label class="form-label fw-semibold">Tipo de Documento *</label>
-            <select class="form-select" [(ngModel)]="propietarioForm.tipo_documento">
-              <option value="CC">CC - Cédula de Ciudadanía</option>
-              <option value="CE">CE - Cédula de Extranjería</option>
-              <option value="TI">TI - Tarjeta de Identidad</option>
-              <option value="PA">PA - Pasaporte</option>
+            <label class="form-label fw-semibold">
+              Tipo Documento
+            </label>
+
+            <select
+              class="form-select"
+              [(ngModel)]="propietarioForm.tipo_documento">
+
+              <option value="CC">CC</option>
+              <option value="CE">CE</option>
+              <option value="TI">TI</option>
+              <option value="PA">PA</option>
               <option value="NIT">NIT</option>
+
             </select>
           </div>
 
+          <!-- DOCUMENTO -->
           <div class="col-md-8">
-            <label class="form-label fw-semibold">Número de Documento *</label>
-            <input type="text"
-                   class="form-control"
-                   [(ngModel)]="propietarioForm.numero_documento"
-                   placeholder="Ej: 80123456">
+            <label class="form-label fw-semibold">
+              Número Documento *
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="propietarioForm.numero_documento">
+
+            <small
+              class="text-danger"
+              *ngIf="
+                propietarioForm.numero_documento &&
+                !validarCedula(propietarioForm.numero_documento)
+              ">
+              La cédula debe tener entre 7 y 10 números.
+            </small>
           </div>
 
+          <!-- TELEFONO -->
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Teléfono</label>
-            <input type="tel"
-                   class="form-control"
-                   [(ngModel)]="propietarioForm.telefono"
-                   placeholder="Ej: 3101112233">
+            <label class="form-label fw-semibold">
+              Teléfono *
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="propietarioForm.telefono">
+
+            <small
+              class="text-danger"
+              *ngIf="
+                propietarioForm.telefono &&
+                !validarTelefono(propietarioForm.telefono)
+              ">
+              El teléfono debe tener exactamente 10 números.
+            </small>
           </div>
 
+          <!-- EMAIL -->
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Email</label>
-            <input type="email"
-                   class="form-control"
-                   [(ngModel)]="propietarioForm.email"
-                   placeholder="correo@ejemplo.com">
+            <label class="form-label fw-semibold">
+              Correo
+            </label>
+
+            <input
+              type="email"
+              class="form-control"
+              [(ngModel)]="propietarioForm.email">
           </div>
 
+          <!-- DIRECCION -->
           <div class="col-12">
-            <label class="form-label fw-semibold">Dirección</label>
-            <input type="text"
-                   class="form-control"
-                   [(ngModel)]="propietarioForm.direccion"
-                   placeholder="Ej: Cra 15 #45-20, Bogotá">
+            <label class="form-label fw-semibold">
+              Dirección *
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              [(ngModel)]="propietarioForm.direccion"
+              placeholder="Ej: Calle 80 # 20-15 Bogotá">
+
+            <small
+              class="text-danger"
+              *ngIf="
+                propietarioForm.direccion &&
+                !validarDireccionBogota(propietarioForm.direccion)
+              ">
+              Solo se permiten direcciones de Bogotá.
+            </small>
           </div>
 
         </div>
+
       </div>
 
-      <div class="modal-footer border-0 bg-light"
-           style="border-bottom-left-radius: 16px; border-bottom-right-radius: 16px;">
-        <button type="button"
-                class="btn btn-secondary fw-bold px-4"
-                (click)="cerrarModal()"
-                style="border-radius: 8px;">
+      <div class="modal-footer border-0 bg-light">
+
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="cerrarModal()">
           Cancelar
         </button>
-        <button type="button"
-                class="btn btn-success fw-bold px-4"
-                (click)="guardarPropietario()"
-                style="border-radius: 8px;">
+
+        <button
+          type="button"
+          class="btn btn-success"
+          (click)="guardarPropietario()">
+
           {{ editando ? 'Guardar Cambios' : 'Registrar' }}
+
         </button>
+
       </div>
 
     </div>

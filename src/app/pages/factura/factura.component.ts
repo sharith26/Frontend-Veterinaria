@@ -66,13 +66,10 @@ export class FacturaComponent implements OnInit {
   this.facturaForm.patchValue({ id_cita: '' });
 
   if (idMascota) {
-    // 1. Obtenemos todas las citas de la mascota
     this.facturaService.obtenerCitasPorMascota(idMascota).subscribe({
       next: (todasLasCitas: any[]) => {
-        // 2. Obtenemos las que YA tienen factura
         this.facturaService.obtenerCitasFacturadas().subscribe(citasYaFacturadas => {
           
-          // 3. Filtramos: solo dejamos las que NO están en la lista de facturadas
           const idsFacturados = citasYaFacturadas.map(f => f.id_cita);
           this.listaCitas = todasLasCitas.filter(cita => !idsFacturados.includes(cita.id));
           
@@ -107,7 +104,6 @@ export class FacturaComponent implements OnInit {
     const subtotal = this.calcularSubtotal();
     const idUsuario = localStorage.getItem('id_usuario') || localStorage.getItem('id') || localStorage.getItem('userId');
 
-    // ✅ Lógica para manejar el id_cita nulo
     let citaSeleccionada = this.facturaForm.value.id_cita;
     if (citaSeleccionada === "") {
         citaSeleccionada = null;
@@ -115,7 +111,7 @@ export class FacturaComponent implements OnInit {
 
     const facturaData = {
       ...this.facturaForm.value,
-      id_cita: citaSeleccionada, // Enviamos null o el ID
+      id_cita: citaSeleccionada, 
       fecha: this.facturaForm.value.fecha_emision,
       estado: 'pendiente',
       subtotal: subtotal,
@@ -144,7 +140,7 @@ export class FacturaComponent implements OnInit {
           alert('Error al guardar: ' + (err.error?.message || 'Ocurrió un error inesperado'));
         }
       }
-    }); // <--- Aquí cerramos el objeto del subscribe
+    });
   } else {
     alert('Por favor, completa todos los campos requeridos.');
   }

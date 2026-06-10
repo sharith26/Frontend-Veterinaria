@@ -1,4 +1,3 @@
-/* Contenedor principal con la imagen de Pinterest de fondo */
 .historial-container {
   min-height: 100vh;
   position: relative;
@@ -10,7 +9,6 @@
   background-attachment: fixed !important;
 }
 
-/* Capa de contraste sutil integrada */
 .historial-container::after {
   content: "";
   position: absolute;
@@ -20,15 +18,13 @@
   pointer-events: none;
 }
 
-/* Forzar que el contenido de la tarjeta se posicione sobre el filtro */
 .historial-container .container-fluid {
   position: relative;
   z-index: 2;
 }
 
-/* TARJETA PRINCIPAL CON TU COLOR E6DADA TRANSLÚCIDO */
 .historial-container .clear-glass-card {
-  background: rgba(230, 218, 218, 0.45) !important; /* Color E6DADA con 45% opacidad */
+  background: rgba(230, 218, 218, 0.45) !important; 
   backdrop-filter: blur(16px) !important;
   -webkit-backdrop-filter: blur(16px) !important;
   border-radius: 22px !important;
@@ -36,7 +32,6 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* ELIMINACIÓN DE FONDOS BLANCOS EN LA TABLA DE ESTE COMPONENTE */
 .historial-container .table-responsive {
   background: transparent !important;
   border-radius: 18px;
@@ -50,7 +45,6 @@
   --bs-table-striped-bg: transparent !important;
 }
 
-/* Encabezado con una variante un poco más sólida de tu color */
 .historial-container .custom-glass-table thead {
   background-color: rgba(230, 218, 218, 0.7) !important;
 }
@@ -61,7 +55,6 @@
   border-bottom: 2px solid rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Celdas completamente transparentes */
 .historial-container .custom-glass-table td {
   background: transparent !important;
   background-color: transparent !important;
@@ -70,12 +63,10 @@
   border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
 
-/* Efecto Hover al pasar por encima */
 .historial-container .custom-glass-table tbody tr:hover td {
   background-color: rgba(255, 255, 255, 0.2) !important;
 }
 
-/* Botones Translúcidos */
 .historial-container .btn-outline-primary,
 .historial-container .btn-outline-danger,
 .historial-container .btn-outline-info,

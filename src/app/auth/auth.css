@@ -5,47 +5,32 @@
   overflow: hidden;
 }
 
-/* =======================================
-   FONDO COMPLETO (OCUPA EL 100% DE LA PANTALLA)
-======================================= */
 .collage-bg {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  
-  /* Aquí puedes poner la URL de la imagen que más te guste */
   background-image: url("https://i.pinimg.com/736x/50/24/94/5024947a36f6837c489d37f0456b52e0.jpg");
-  
-  /* ESTO CORRIGE EL ERROR: Hace que la imagen llene toda la pantalla obligatoriamente */
   background-size: cover;
-  
-  /* Centra la imagen para que no se desplace feo */
   background-position: center;
   background-repeat: no-repeat;
-  
   z-index: 0;
 }
 
-/* CAPA OSCURA INTEGRADA (OVERLAY) */
 .collage-bg::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45); /* Un poquito más oscuro para que resalte la tarjeta */
+  background: rgba(0, 0, 0, 0.45); 
 }
 
-/* =========================
-   CONTENEDOR DEL LOGIN
-========================= */
 .login-form-wrapper {
   position: relative;
   z-index: 2;
   width: 100%;
 }
 
-/* TARJETA CON EFECTO GLASSMORPHISM */
 .card {
   background: rgba(130, 130, 153, 0.85) !important;
   backdrop-filter: blur(16px);
@@ -55,14 +40,12 @@
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 }
 
-/* TEXTOS INTERNOS */
 .card h2,
 .card p,
 .card label {
   color: white !important;
 }
 
-/* INPUTS DEL FORMULARIO */
 .form-control {
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -81,7 +64,6 @@
   box-shadow: none;
 }
 
-/* BOTÓN DE ENTRADA */
 .btn-primary {
   border: none;
   border-radius: 12px;

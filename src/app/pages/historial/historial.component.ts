@@ -37,9 +37,6 @@ export class HistorialComponent implements OnInit {
     this.cargarDatos();
   }
 
-  /* ==========================================
-     FORMATEAR FECHA
-  ========================================== */
   formatearFecha(fecha: string): string {
     if (!fecha) return 'Sin fecha';
     const fechaObj = new Date(fecha);
@@ -50,9 +47,6 @@ export class HistorialComponent implements OnInit {
     });
   }
 
-  /* ==========================================
-     OBTENER EDAD
-  ========================================== */
   obtenerEdad(fechaNacimiento: string): string {
     if (!fechaNacimiento) return 'Sin edad';
     const nacimiento = new Date(fechaNacimiento);
@@ -65,17 +59,11 @@ export class HistorialComponent implements OnInit {
     return edad > 0 ? `${edad} año${edad !== 1 ? 's' : ''}` : 'Menos de 1 año';
   }
 
-  /* ==========================================
-     SELECCIONAR MASCOTA
-  ========================================== */
   seleccionarMascota(mascota: any) {
     this.mascotaSeleccionadaVer = mascota;
     this.filtrarHistorias();
   }
 
-  /* ==========================================
-     FILTRAR HISTORIAS
-  ========================================== */
   filtrarHistorias() {
     if (!this.mascotaSeleccionadaVer || !this.historiasTodas.length) {
       this.listaHistorias = [];
@@ -89,9 +77,6 @@ export class HistorialComponent implements OnInit {
     this.cdr.detectChanges();
   }
 
-  /* ==========================================
-     CARGAR DATOS
-  ========================================== */
   async cargarDatos() {
     this.loading = true;
     this.errorMensaje = '';
@@ -109,9 +94,6 @@ export class HistorialComponent implements OnInit {
     }
   }
 
-  /* ==========================================
-     VER MEDICAMENTOS
-  ========================================== */
   verMedicamentosPorMascota(historia: any) {
     this.mascotaSeleccionada = historia.mascota;
     this.medicamentosDeMascota = this.listaPrescripciones.filter((prescripcion: any) => {
@@ -120,18 +102,12 @@ export class HistorialComponent implements OnInit {
     this.mostrarModalMedicamento = true;
   }
 
-  /* ==========================================
-     CERRAR MODAL
-  ========================================== */
   cerrarModalMedicamento() {
     this.mostrarModalMedicamento = false;
     this.mascotaSeleccionada = null;
     this.medicamentosDeMascota = [];
   }
 
-  /* ==========================================
-     CARGAR MEDICAMENTOS
-  ========================================== */
   async cargarMedicamentos() {
     const { data, error } = await this.supabaseService.supabase
       .from('medicamento')
@@ -145,12 +121,8 @@ export class HistorialComponent implements OnInit {
     this.listaMedicamentos = data || [];
   }
 
-  /* ==========================================
-     CARGAR HISTORIAS CLÍNICAS
-  ========================================== */
   async cargarHistorias() {
     try {
-      // Cargar todas las tablas
       const { data: historias } = await this.supabaseService.supabase
         .from('historia_clinica')
         .select('*');
@@ -190,20 +162,17 @@ export class HistorialComponent implements OnInit {
         .select('*');
       const raiseData: any[] = raise || [];
 
-      // Obtener lista de mascotas únicas para el selector
       this.listaMascotas = [...new Set(mascotasData.map((m: any) => m.id_mascota))]
         .map((id: any) => mascotasData.find((m: any) => m.id_mascota === id))
         .filter(Boolean);
 
       console.log('4. Mascotas únicas:', this.listaMascotas.length);
 
-      // Seleccionar primera mascota si no hay selección
       if (this.listaMascotas.length > 0 && !this.mascotaSeleccionadaVer) {
         this.mascotaSeleccionadaVer = this.listaMascotas[0];
         console.log('5. Mascota seleccionada:', this.mascotaSeleccionadaVer.nombre);
       }
 
-      // Combinar historias con mascota
       this.historiasTodas = historias.map((historia: any) => {
         const cita = citasData.find((c: any) => c.id_cita === historia.id_cita);
         
@@ -237,7 +206,6 @@ export class HistorialComponent implements OnInit {
 
       console.log('6. Historias combinadas:', this.historiasTodas.length);
 
-      // filtrar por la mascota seleccionada
       this.filtrarHistorias();
 
       console.log('7. Historias filtradas:', this.listaHistorias.length);
@@ -248,9 +216,6 @@ export class HistorialComponent implements OnInit {
     }
   }
 
-  /* ==========================================
-     CARGAR PRESCRIPCIONES
-  ========================================== */
   async cargarPrescripciones() {
     try {
       const { data: prescripciones } = await this.supabaseService.supabase

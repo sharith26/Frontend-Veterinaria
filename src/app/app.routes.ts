@@ -22,7 +22,7 @@ export const routes: Routes = [
   { 
   path: 'factura', 
   component: FacturaComponent, 
-  canActivate: [authGuard, rolGuard('verFacturas')] // <--- ¡AQUÍ ESTÁ LA CLAVE!
+  canActivate: [authGuard, rolGuard('verFacturas')] 
   },
 
   {

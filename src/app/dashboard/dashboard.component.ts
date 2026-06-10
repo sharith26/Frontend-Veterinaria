@@ -90,7 +90,6 @@ export class DashboardComponent implements OnInit {
   });
 }
 
-  // ✅ Calcula la edad en años desde la fecha de nacimiento
   calcularEdad(fechaNacimiento: string): number {
     if (!fechaNacimiento) return 0;
     const hoy = new Date();
@@ -109,11 +108,9 @@ export class DashboardComponent implements OnInit {
   this.cargandoHistorial = true;
 
   this.mascotaService.obtenerHistorialPorMascota(mascota.id_mascota).subscribe({
-    // En tu función verHistorial:
 next: (data: any) => {
   console.log("Datos recibidos:", data);
   
-  // Accedemos a la propiedad 'historias' del objeto que llega
   this.historialMascota = data.historias || []; 
   
   this.cargandoHistorial = false;
